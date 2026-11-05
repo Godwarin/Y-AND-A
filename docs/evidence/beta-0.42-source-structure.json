@@ -1,0 +1,21 @@
+{
+  "date": "2026-11-05T08:40:42.475911+00:00",
+  "status": "PASS_SOURCE_STRUCTURE_METADATA",
+  "reviewedSnapshotSha256": "b08f1121ed545466cc72473abc1c0961e77e045fa0f6ebed47a6dbe4b5f18e36",
+  "syntaxFiles": {
+    "json": 28,
+    "toml": 2,
+    "pythonSyntax": 16,
+    "androidXml": 4
+  },
+  "productVersion": "0.4.0-rc.1",
+  "versionSourcesMatched": 5,
+  "npmRegistryEntriesWithSha512": 209,
+  "cargoRegistryEntriesWithSha256": 415,
+  "rootNpmDependencyMapsMatch": true,
+  "projectCodeExecuted": false,
+  "networkUsed": false,
+  "limitations": [
+    "Syntax and declared integrity metadata do not prove runtime safety or fetch/verify dependency archives"
+  ]
+}

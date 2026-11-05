@@ -1,0 +1,106 @@
+{
+  "upstream": "https://github.com/microsoft/vcpkg",
+  "gitTree": "c40aaa40e075d25ef1e812daa7333778890b6b0d",
+  "files": [
+    {
+      "path": "0002-fix-msvc-link.patch",
+      "gitBlob": "c9aa7e752375ef527a8962b6a5d59c4acca20e6a",
+      "sha256": "45611935478d66262fde55d2b1dbe122fc0da58c0f3e07682e78734ab2e4fc1f"
+    },
+    {
+      "path": "0003-fix-windowsinclude.patch",
+      "gitBlob": "8b2e22b476f834bd6f75f384b720c443061c505c",
+      "sha256": "9030b03bcc83d9005401b05754d6dae07255b20eda327ae3fe410df94cd1fead"
+    },
+    {
+      "path": "0004-dependencies.patch",
+      "gitBlob": "de78a6351e09d4fa1c8d2f5d3572dbea268f2f12",
+      "sha256": "24d5b815d736be69e93d5f9101328fc4c5a7b0dcc1e7bc99bed15703cd811434"
+    },
+    {
+      "path": "0005-fix-nasm.patch",
+      "gitBlob": "a0fe575a6cede7c0d0cc943338556f4efd9d7c1d",
+      "sha256": "4c744e36bd4a7f6ff6fd51b94295b18dc78b229f030d5636fb4efedf8658c9d6"
+    },
+    {
+      "path": "0007-fix-lib-naming.patch",
+      "gitBlob": "bee4eb8ad1f609cd5dcc0a84ce3e9328a720d6dc",
+      "sha256": "1392414bdbbdced1ccb59286c6b0420470bb3f37bbce3d6ee1a2a5f7fb7a5c68"
+    },
+    {
+      "path": "0013-define-WINVER.patch",
+      "gitBlob": "295a738e74f7e72e5ac190154654b2863497ed08",
+      "sha256": "dba22ed5a6544fdcd4e85a3ca6b470857ba6343b63d34776fdea1823d689a35a"
+    },
+    {
+      "path": "0024-fix-osx-host-c11.patch",
+      "gitBlob": "dbce2f53b8e7dfa8e68ebefc8a91728fdb51e79e",
+      "sha256": "1cdb52872429c852cc4358d2122cc847c7e251c149af382c61535f1de42221f2"
+    },
+    {
+      "path": "0040-ffmpeg-add-av_stream_get_first_dts-for-chromium.patch",
+      "gitBlob": "c2e1d8ff0d7b8ab316452377b52e660edfc2b303",
+      "sha256": "3e00a2918ded31d579c1fe9619f7c81ba7d4541a27417c71d41aac054300f7d2"
+    },
+    {
+      "path": "0045-use-prebuilt-bin2c.patch",
+      "gitBlob": "b7e927705d175abea0c143555fbfd124a48d4da8",
+      "sha256": "5510a5d6cc0e6cac881157b8432dcd14672e6618c8b9e8719414e1d3c1804e21"
+    },
+    {
+      "path": "0046-fix-msvc-detection.patch",
+      "gitBlob": "ce7d878cbef3cbf6cf7748d011e05537f2b5b758",
+      "sha256": "868ea2d15d4bdc189847d452a45e1e1caddf79e183dd4926f73530f104803a40"
+    },
+    {
+      "path": "0047-fix-msvc-utf8.patch",
+      "gitBlob": "9efe40e0d7116f45166c1c683589a3390fe907b5",
+      "sha256": "76e199ae27fc8f8be518ffa45d07c152abc3a0e05e42130ae5d6b54a26bc5683"
+    },
+    {
+      "path": "0048-backport-23039.patch",
+      "gitBlob": "abc133d3c564b468fc5b789ba03ead4f2bcb49db",
+      "sha256": "1a056c13a41358b7fab236ecaeb32db1748d223a5e26144c8663c3dbdefee722"
+    },
+    {
+      "path": "0049-fix-twolame-pkgconfig.patch",
+      "gitBlob": "20e0098ed4ab2dbf032b4f29c6c5fd6903a5370a",
+      "sha256": "8dcc2c5d3c4109a70892e9072d57fc3d0fe2df1359971ee02527879c00681713"
+    },
+    {
+      "path": "0050-fix-test-ld-absolute-lib-paths.patch",
+      "gitBlob": "cf0fd640ec916efe358988f0a9b931e1a756afad",
+      "sha256": "24a8511c2a450d8c86bfa581eb5dd4d573facf404955b0bbf4feecfe0653c30d"
+    },
+    {
+      "path": "FindFFMPEG.cmake.in",
+      "gitBlob": "4585b6fc019ad37aa06c0721cc0a2a6502d6bfc6",
+      "sha256": "1f2dcf314da0e83b0dc1295e1c4527ae6b53d396b5fe48b908e5b6e7c05dd2be"
+    },
+    {
+      "path": "build.sh.in",
+      "gitBlob": "fd794d41c888c9ed8c9e5b6a30868d5c783fe918",
+      "sha256": "ccf1187b341db53460a98a44da29bdf604a99e2c8ed08bec9173c433dd6334d6"
+    },
+    {
+      "path": "portfile.cmake",
+      "gitBlob": "fa73a16e0fe273395026ad65c15f9525e2253e8e",
+      "sha256": "aa15125343efadd77e5db7f203197a371d4776bfccea7c0f81af417a6bd64545"
+    },
+    {
+      "path": "usage",
+      "gitBlob": "b2d02a089b8820297121f463aa2b10264f318e7b",
+      "sha256": "68e4e0989c3e944fc4b53ce6618b4cdd18efb5d8ee791703e9c30a6c54285707"
+    },
+    {
+      "path": "vcpkg-cmake-wrapper.cmake",
+      "gitBlob": "61bdd88c4f494d0f35802c2df129947e4631eeb0",
+      "sha256": "0a028878529c0219a0489f08e2cd4f03a3bfcea38d3700a070109839c8d62e5c"
+    },
+    {
+      "path": "vcpkg.json",
+      "gitBlob": "c880e290922dc2584f42add0cf9625f14f119ce3",
+      "sha256": "72f5a2c2d13edea6aa57504819f397a30e68402f2f8298b8f37003e93ee875f8"
+    }
+  ]
+}

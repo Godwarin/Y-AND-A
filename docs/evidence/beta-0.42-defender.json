@@ -1,0 +1,11 @@
+{
+  "scope": "Custom Microsoft Defender scan of owned BETA-0.42 folder",
+  "exitCode": 0,
+  "remediationRequested": false,
+  "scannerAuthenticode": "Valid Microsoft",
+  "signatureVersion": "1.463.129.0",
+  "filesExecuted": false,
+  "status": "PASS_NO_THREATS_REPORTED",
+  "date": "2026-11-05",
+  "threatsReported": false
+}

@@ -1,0 +1,30 @@
+{
+  "format": "YANDA-test-candidate-v1",
+  "version": "0.4.0-rc.1",
+  "policy": "Phone tests and closed distribution use identical Windows ZIP including all runtime DLL/resources and identical APK; package changes invalidate matching phone evidence",
+  "files": [
+    {
+      "path": "Y AND A.exe",
+      "sha256": "31b530fd988b7978c15aa700b9e68ad116587fa16ec7030816ba672c968948aa",
+      "bytes": 9042944
+    },
+    {
+      "path": "Y-AND-A-0.4.0-rc.1-android.apk",
+      "sha256": "181bf5a6e0159708cd8726a8872bb3eb79a709241ffca483c76d5b78acd298b3",
+      "bytes": 316141
+    },
+    {
+      "path": "runtime/android-yanda/yanda-android.exe",
+      "sha256": "cf7557a5a614db0152269eb07244f172adf05d0b8b61289a6b2a56ded9cdaf28",
+      "bytes": 50176
+    },
+    {
+      "path": "runtime/airplay-yanda/airplay-windows.exe",
+      "sha256": "bfdeca665aaf96b5e54cd63b12f6f64d5a153ed7972a75d3923e118e2918378a",
+      "bytes": 1228800
+    }
+  ],
+  "phoneTests": "PENDING",
+  "widePublicReleaseApproved": false,
+  "windowsZipSha256": "8a0e1db16f1d5f49a1028c8d18e89991b1de5719cf7f47540b925c997cee4b52"
+}

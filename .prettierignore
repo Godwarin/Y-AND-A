@@ -1,0 +1,11 @@
+vendor
+runtime
+build
+downloads
+release
+dist
+node_modules
+.venv
+src-tauri
+docs/evidence
+package-lock.json

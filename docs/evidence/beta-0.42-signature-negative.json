@@ -1,0 +1,15 @@
+{
+  "date": "2026-11-05",
+  "status": "PASS_TRUSTED_METADATA_CRYPTO_CHECKS",
+  "checks": {
+    "validSignatureAccepted": true,
+    "changedManifestRejected": true,
+    "changedSignatureRejected": true,
+    "truncatedSignatureRejected": true,
+    "otherPublisherRejected": true
+  },
+  "productCodeExecuted": false,
+  "privateReleaseKeyRead": false,
+  "filesChanged": false,
+  "scope": "Public release metadata only; synthetic byte changes and ephemeral comparison key only"
+}

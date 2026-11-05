@@ -1,0 +1,50 @@
+{
+  "android-yanda": {
+    "ffmpeg": "8.1.2",
+    "openssl": "OpenSSL 3.6.5 29 Sep 2026",
+    "gplCodecBuild": false,
+    "dllSha256": {
+      "avcodec-62.dll": "e140f514143c4393df43159f9f7b718f6c70864896343a7b3d30d6a32bf430cb",
+      "avformat-62.dll": "9e0451c0e1742e4578a304fe1c1bf6fa6b394208b49b1d05a747dc1d2641bfc7",
+      "avutil-60.dll": "f7fb5bafd2f7f6a4cc8911f9427c7fe78f7f76ce469c45dd2b825b9c5e0df769",
+      "brotlicommon.dll": "34be08ace68692f57843ab3be72cd6558c8e441299caa763c2ea40ff56c20bd6",
+      "brotlidec.dll": "e94354dc5f7de158a50e14b25303a63080e3b9889a72284517d9a442e31b892d",
+      "brotlienc.dll": "a4229f5ad728c8fa1393e014486d5a39397284512c840a76990304a4716d3d0e",
+      "bz2.dll": "9bfe70cbe8e821825b646f291fbe2f8b08b53d1e6cfa7e3b5a8c3ba343dd31ca",
+      "freetype.dll": "6bff8e833e573c77901fb91b5c4fac60455814281d61add7b8b0ca52a8a8a619",
+      "legacy.dll": "21e2132f8abbf1e1d797bd73f0ddd3b9fa769841e052337f3d50a56a6e71c759",
+      "libcrypto-3-x64.dll": "c62ebb1134862a98b87405a269146aff059a7cabb0b4f8964054f0cdb084d184",
+      "libpng16.dll": "6c75ef93877342a48ce16f3cbbc005590a38bb1f67e65e4419f6d249bdf0e9b0",
+      "libssl-3-x64.dll": "abbc7bd59f0e04a74b5e4a1b92d59449ad6044cc6050eb0d1fbf05709e59fae5",
+      "plist-2.0.dll": "4c334f55d68ab1f273e67b8033eb305ca01368710e0ac31c50ebe353e7c5fe6d",
+      "SDL2.dll": "e928fa08c3a6308e3ce70e4a5f2b790e5e618d63d405706665d199b54548d4e1",
+      "SDL2_ttf.dll": "8cc738db528d6836758c367ae5c46600aa07b42602f25b263533199afcb8ad7a",
+      "swscale-9.dll": "afaed6669360c0119db34e139ac95b4d92976734d678e96203faed5822862ffc",
+      "z.dll": "6696cb1d59dda56bc729550947227ec96ea774ec91ba96215ea60780f580e153"
+    }
+  },
+  "airplay-yanda": {
+    "ffmpeg": "8.1.2",
+    "openssl": "OpenSSL 3.6.5 29 Sep 2026",
+    "gplCodecBuild": false,
+    "dllSha256": {
+      "avcodec-62.dll": "e140f514143c4393df43159f9f7b718f6c70864896343a7b3d30d6a32bf430cb",
+      "avformat-62.dll": "9e0451c0e1742e4578a304fe1c1bf6fa6b394208b49b1d05a747dc1d2641bfc7",
+      "avutil-60.dll": "f7fb5bafd2f7f6a4cc8911f9427c7fe78f7f76ce469c45dd2b825b9c5e0df769",
+      "brotlicommon.dll": "34be08ace68692f57843ab3be72cd6558c8e441299caa763c2ea40ff56c20bd6",
+      "brotlidec.dll": "e94354dc5f7de158a50e14b25303a63080e3b9889a72284517d9a442e31b892d",
+      "brotlienc.dll": "a4229f5ad728c8fa1393e014486d5a39397284512c840a76990304a4716d3d0e",
+      "bz2.dll": "9bfe70cbe8e821825b646f291fbe2f8b08b53d1e6cfa7e3b5a8c3ba343dd31ca",
+      "freetype.dll": "6bff8e833e573c77901fb91b5c4fac60455814281d61add7b8b0ca52a8a8a619",
+      "legacy.dll": "21e2132f8abbf1e1d797bd73f0ddd3b9fa769841e052337f3d50a56a6e71c759",
+      "libcrypto-3-x64.dll": "c62ebb1134862a98b87405a269146aff059a7cabb0b4f8964054f0cdb084d184",
+      "libpng16.dll": "6c75ef93877342a48ce16f3cbbc005590a38bb1f67e65e4419f6d249bdf0e9b0",
+      "libssl-3-x64.dll": "abbc7bd59f0e04a74b5e4a1b92d59449ad6044cc6050eb0d1fbf05709e59fae5",
+      "plist-2.0.dll": "4c334f55d68ab1f273e67b8033eb305ca01368710e0ac31c50ebe353e7c5fe6d",
+      "SDL2.dll": "e928fa08c3a6308e3ce70e4a5f2b790e5e618d63d405706665d199b54548d4e1",
+      "SDL2_ttf.dll": "8cc738db528d6836758c367ae5c46600aa07b42602f25b263533199afcb8ad7a",
+      "swscale-9.dll": "afaed6669360c0119db34e139ac95b4d92976734d678e96203faed5822862ffc",
+      "z.dll": "6696cb1d59dda56bc729550947227ec96ea774ec91ba96215ea60780f580e153"
+    }
+  }
+}

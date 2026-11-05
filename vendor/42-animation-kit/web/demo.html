@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>42 — оригинальная 3D ASCII анимация</title>
+<style>
+  :root { color-scheme: dark; }
+  body { background:#080808; color:#bbb; font:14px system-ui; margin:0; padding:25px; }
+  #viewer { width:min(100%,920px); height:480px; border:1px solid #3d1515; background:#080808; }
+  .controls { display:flex; gap:12px; align-items:center; margin:16px 0; flex-wrap:wrap; }
+  button { padding:9px 16px; background:#331111; color:#eee; border:1px solid #773535; cursor:pointer; }
+</style>
+</head>
+<body>
+  <div id="viewer"></div>
+  <div class="controls">
+    <button id="toggle">Пауза</button>
+    <label>Цвет <select id="color"><option>red</option><option>cyan</option><option>green</option><option>yellow</option></select></label>
+    <label>Нагрузка <input type="range" min="0" max="100" id="load" value="0"></label>
+  </div>
+  <script src="forty-two.js"></script>
+  <script>
+    const viewer=document.getElementById('viewer');
+    let player=FortyTwo.mount(viewer,{color:'red'});
+    let stopped=false;
+    document.getElementById('toggle').onclick=function(){
+      if(stopped) player.resume(); else player.pause();
+      stopped=!stopped; this.textContent=stopped?'Продолжить':'Пауза';
+    };
+    document.getElementById('color').onchange=function(){
+      const load=Number(document.getElementById('load').value);
+      player.destroy(); player=FortyTwo.mount(viewer,{color:this.value,load});
+      stopped=false; document.getElementById('toggle').textContent='Пауза';
+    };
+    document.getElementById('load').oninput=e=>player.setLoad(Number(e.target.value));
+  </script>
+</body>
+</html>

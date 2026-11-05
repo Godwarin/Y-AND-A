@@ -1,0 +1,400 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index efb9bb1..bdc0288 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -485,6 +485,10 @@ endif()
+ # Focused regression tests for receiver disconnect and shutdown.
+ option(BUILD_NETWORK_TESTS "Build socket shutdown regression tests" OFF)
+ if(BUILD_NETWORK_TESTS)
++    add_executable(test-yanda-audio-disabled tools/test_yanda_audio_disabled.cpp src/audio/audio_output.cpp src/log.cpp)
++    target_include_directories(test-yanda-audio-disabled PRIVATE src)
++    target_compile_definitions(test-yanda-audio-disabled PRIVATE SDL_MAIN_HANDLED)
++    target_link_libraries(test-yanda-audio-disabled PRIVATE ${SDL2_TARGET})
+     add_executable(test-firewall tools/test_firewall.cpp src/platform/firewall.cpp)
+     target_include_directories(test-firewall PRIVATE src)
+     if(WIN32)
+@@ -515,6 +519,7 @@ if(BUILD_NETWORK_TESTS)
+         target_link_libraries(test-shutdown PRIVATE Threads::Threads)
+     endif()
+     enable_testing()
++    add_test(NAME yanda-audio-disabled COMMAND test-yanda-audio-disabled)
+     add_test(NAME firewall COMMAND test-firewall)
+     add_test(NAME settings COMMAND test-settings)
+     add_test(NAME socket-shutdown COMMAND test-shutdown)
+diff --git a/src/airplay/routes.cpp b/src/airplay/routes.cpp
+index 6f57a84..25eefd8 100644
+--- a/src/airplay/routes.cpp
++++ b/src/airplay/routes.cpp
+@@ -22,6 +22,7 @@
+ #endif
+ 
+ #include <cstdio>
++#include <cstdlib>
+ #include <chrono>
+ #include <cstring>
+ #include <fstream>
+@@ -598,6 +599,7 @@ Response handle_get_parameter(const Request& req) {
+ // a fixed on-disk location. Later we'll surface it in the SDL window
+ // overlay instead of overwriting a single file.
+ void save_cover_art(const unsigned char* data, std::size_t len) {
++    if (std::getenv("YANDA_EMBEDDED")) return; // No implicit media writes in Y AND A.
+     std::ofstream f("cover.jpg", std::ios::binary | std::ios::trunc);
+     if (!f) { LOG_WARN << "cover.jpg: open for write failed"; return; }
+     f.write(reinterpret_cast<const char*>(data), static_cast<std::streamsize>(len));
+diff --git a/src/audio/audio_output.cpp b/src/audio/audio_output.cpp
+index 0b2ab2b..090b4f2 100644
+--- a/src/audio/audio_output.cpp
++++ b/src/audio/audio_output.cpp
+@@ -4,6 +4,7 @@
+ #include <SDL.h>
+ 
+ #include <algorithm>
++#include <cstdlib>
+ #include <cmath>
+ #include <vector>
+ 
+@@ -13,6 +14,11 @@ SdlAudioOutput::SdlAudioOutput()  = default;
+ SdlAudioOutput::~SdlAudioOutput() { stop(); }
+ 
+ bool SdlAudioOutput::start(int sample_rate, int channels) {
++    const char* disabled = std::getenv("YANDA_AUDIO_DISABLED");
++    if (disabled && disabled[0] == '1') {
++        sample_rate_ = sample_rate; channels_ = channels; buffer_frames_ = 0;
++        return true; // Accept the protocol but drop PCM; never open an output device.
++    }
+     if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0) {
+         LOG_ERROR << "SDL_InitSubSystem(AUDIO) failed: " << SDL_GetError();
+         return false;
+@@ -39,6 +45,7 @@ bool SdlAudioOutput::start(int sample_rate, int channels) {
+     channels_    = got.channels;
+     buffer_frames_ = got.samples;
+     SDL_PauseAudioDevice(device_, 0);
++    LOG_INFO << "YANDA_AUDIO";
+     LOG_INFO << "SdlAudioOutput playing at " << sample_rate_ << " Hz x "
+              << channels_ << "ch (format int16)";
+     return true;
+diff --git a/src/log.cpp b/src/log.cpp
+index 93023b0..a22f94f 100644
+--- a/src/log.cpp
++++ b/src/log.cpp
+@@ -4,6 +4,7 @@
+ #include <chrono>
+ #include <ctime>
+ #include <cstdio>
++#include <cstdlib>
+ #include <iomanip>
+ #include <iostream>
+ #include <mutex>
+@@ -51,6 +52,15 @@ std::string timestamp() {
+ 
+ void log_write(LogLevel level, const std::string& msg) {
+     if (!g_log_enabled.load(std::memory_order_relaxed)) return;
++    // Embedded mode emits only non-sensitive lifecycle events.
++    if (std::getenv("YANDA_EMBEDDED") && msg.rfind("YANDA_", 0) != 0) {
++        if (level == LogLevel::Error) {
++            std::lock_guard<std::mutex> lock(log_mutex());
++            const bool audio = msg.find("audio") != std::string::npos || msg.find("Audio") != std::string::npos || msg.find("AUDIO") != std::string::npos || msg.find("AAC") != std::string::npos;
++            std::fprintf(stderr, audio ? "YANDA_AUDIO_UNAVAILABLE\n" : "YANDA_ERROR\n"); std::fflush(stderr);
++        }
++        return;
++    }
+     std::lock_guard<std::mutex> lock(log_mutex());
+     std::fprintf(stderr, "[%s] %s  %s\n",
+                  timestamp().c_str(), level_tag(level), msg.c_str());
+diff --git a/src/main.cpp b/src/main.cpp
+index 71c0f07..4173fff 100644
+--- a/src/main.cpp
++++ b/src/main.cpp
+@@ -25,6 +25,7 @@
+ #include <SDL.h>
+ 
+ #include <atomic>
++#include <cstdlib>
+ #include <chrono>
+ #include <optional>
+ #include <mutex>
+@@ -78,9 +79,12 @@ ap::airplay::DeviceContext build_device_context(bool hls_playback) {
+ } // namespace
+ 
+ int main(int argc, char** argv) {
++    // This fork is a Y AND A helper, never a standalone receiver touching
++    // another application's settings or offering firewall elevation.
++    if (!std::getenv("YANDA_EMBEDDED") || !std::getenv("YANDA_AIRPLAY_STATE_DIR")) return 2;
+ #if defined(_WIN32)
+     for (int i=1; i<argc; ++i)
+-        if (std::string(argv[i])=="--configure-firewall") return ap::platform::configure_firewall();
++        if (std::string(argv[i])=="--configure-firewall") return 2;
+     ap::platform::SingleInstance instance;
+     // Help is read-only and should remain usable while the receiver is open.
+     bool help_only = false;
+@@ -123,6 +127,13 @@ int main(int argc, char** argv) {
+ #endif
+ 
+     auto saved = ap::load_settings();
++    if (std::getenv("YANDA_EMBEDDED")) {
++        saved.receiver_name = "Y AND A";
++        saved.chromeless = true;
++        saved.fullscreen = false;
++        saved.ui.window_placement_valid = false;
++        saved.ui.window_maximized = false;
++    }
+     if (saved.mirror_width == 0 || saved.mirror_height == 0) {
+         saved.mirror_width = 2560;
+         saved.mirror_height = 1440;
+@@ -328,7 +339,12 @@ int main(int argc, char** argv) {
+     ap::mdns::MdnsService mdns;
+     if (!mdns.start(ctx, server.port())) {
+         LOG_WARN << "mDNS not available — receiver won't auto-appear on iOS";
++        if (std::getenv("YANDA_EMBEDDED")) {
++            LOG_ERROR << "YANDA_MDNS_ERROR";
++            server.stop(); renderer.stop(); ap::net::global_shutdown(); return 1;
++        }
+     }
++    LOG_INFO << "YANDA_READY";
+ 
+     // Watch for USB-connected iPhones in parallel with the Wi-Fi mDNS
+     // path. Phase 1: just logs arrivals + paired/not-paired. The full
+@@ -336,7 +352,7 @@ int main(int argc, char** argv) {
+     // when ready, the supervisor will hand a connected device off to
+     // the same VideoRenderer / AudioOutput that mirror_listener uses.
+     ap::usb::UsbSupervisor usb_supervisor;
+-    usb_supervisor.start();
++    if (!std::getenv("YANDA_EMBEDDED")) usb_supervisor.start();
+ 
+     LOG_INFO << "Ready. Close the window or press Ctrl-C to exit.";
+     auto last_saved_settings = ap::snapshot(live_settings);
+diff --git a/src/mdns/mdns_service.cpp b/src/mdns/mdns_service.cpp
+index ff63e26..f1fab63 100644
+--- a/src/mdns/mdns_service.cpp
++++ b/src/mdns/mdns_service.cpp
+@@ -87,6 +87,14 @@ struct MdnsService::Impl {
+         std::lock_guard<std::mutex> lock(service->mutex);
+         service->status = status;
+         service->pending = false;
++        if (!service->deregistering) {
++            const bool mirror = service->instance_name.find(L"._airplay.") != std::wstring::npos;
++            if (status == ERROR_SUCCESS) {
++                LOG_INFO << (mirror ? "YANDA_MDNS_AIRPLAY_REGISTERED" : "YANDA_MDNS_RAOP_REGISTERED");
++            } else {
++                LOG_ERROR << (mirror ? "YANDA_MDNS_AIRPLAY_ERROR " : "YANDA_MDNS_RAOP_ERROR ") << status;
++            }
++        }
+         LOG_INFO << "mDNS " << (service->deregistering ? "deregister" : "register")
+                  << ": " << narrow(service->instance_name.c_str())
+                  << " status=" << status;
+diff --git a/src/net/tcp_server.cpp b/src/net/tcp_server.cpp
+index dfda525..0d2e342 100644
+--- a/src/net/tcp_server.cpp
++++ b/src/net/tcp_server.cpp
+@@ -29,8 +29,14 @@ bool TcpServer::start(uint16_t port, Handler handler) {
+     }
+ 
+     int on = 1;
++#if defined(_WIN32)
++    // A receiver must never share a port with an unrelated listener.
++    ::setsockopt(listener_, SOL_SOCKET, SO_EXCLUSIVEADDRUSE,
++                 reinterpret_cast<const char*>(&on), sizeof(on));
++#else
+     ::setsockopt(listener_, SOL_SOCKET, SO_REUSEADDR,
+                  reinterpret_cast<const char*>(&on), sizeof(on));
++#endif
+ 
+     // Disable IPV6_V6ONLY so the socket accepts v4 too. On Windows this
+     // defaults to ON, on Linux it varies; set it explicitly either way.
+@@ -44,6 +50,7 @@ bool TcpServer::start(uint16_t port, Handler handler) {
+     addr6.sin6_port   = htons(port);
+ 
+     if (::bind(listener_, reinterpret_cast<sockaddr*>(&addr6), sizeof(addr6)) != 0) {
++        LOG_ERROR << "YANDA_BIND_ERROR";
+         LOG_ERROR << "bind([::]:" << port << ") failed: " << last_error_string();
+         close_socket(listener_);
+         listener_ = INVALID_SOCK;
+diff --git a/src/platform/single_instance.h b/src/platform/single_instance.h
+index 296a3f0..6f8bda0 100644
+--- a/src/platform/single_instance.h
++++ b/src/platform/single_instance.h
+@@ -5,7 +5,7 @@
+ 
+ namespace ap::platform {
+ 
+-inline constexpr wchar_t kInstanceWindowProperty[] = L"AirPlay-Windows.MainWindow.v1";
++inline constexpr wchar_t kInstanceWindowProperty[] = L"YANDA.AirPlay.MainWindow.v1";
+ 
+ // Session-local kernel objects disappear automatically after the last process
+ // closes them, including after a crash. The event also remembers an activation
+@@ -16,10 +16,10 @@ public:
+ 
+     Result acquire() {
+         event_ = CreateEventW(nullptr, FALSE, FALSE,
+-                              L"Local\\AirPlay-Windows.Activate.v1");
++                              L"Local\\YANDA.AirPlay.Activate.v1");
+         if (!event_) return Result::Error;
+         mutex_ = CreateMutexW(nullptr, FALSE,
+-                              L"Local\\AirPlay-Windows.Instance.v1");
++                              L"Local\\YANDA.AirPlay.Instance.v1");
+         const DWORD error = GetLastError();
+         if (!mutex_) return Result::Error;
+         if (error != ERROR_ALREADY_EXISTS) return Result::Primary;
+diff --git a/src/settings.cpp b/src/settings.cpp
+index 82017ab..15a09eb 100644
+--- a/src/settings.cpp
++++ b/src/settings.cpp
+@@ -4,6 +4,7 @@
+ #include "log.h"
+ 
+ #include <fstream>
++#include <cstdlib>
+ #include <string>
+ #include <system_error>
+ 
+@@ -14,6 +15,14 @@
+ namespace ap {
+ 
+ std::filesystem::path settings_path() {
++    // Y AND A: never read or overwrite another receiver's preferences.
++    #if defined(_WIN32)
++    if (const wchar_t* dir = _wgetenv(L"YANDA_AIRPLAY_STATE_DIR"))
++        return std::filesystem::path(dir) / L"settings.ini";
++    #else
++    if (const char* dir = std::getenv("YANDA_AIRPLAY_STATE_DIR"))
++        return std::filesystem::u8path(dir) / "settings.ini";
++    #endif
+ #if defined(_WIN32)
+     PWSTR wide_path = nullptr;
+     if (FAILED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, nullptr, &wide_path))) {
+diff --git a/src/video/h264_decoder.cpp b/src/video/h264_decoder.cpp
+index b87b346..9c2ab57 100644
+--- a/src/video/h264_decoder.cpp
++++ b/src/video/h264_decoder.cpp
+@@ -2,6 +2,7 @@
+ #include "log.h"
+ 
+ #include <cstdio>
++#include <cstdlib>
+ #include <cstring>
+ 
+ extern "C" {
+@@ -489,6 +490,7 @@ bool H264Decoder::decode(const uint8_t* nal_data, std::size_t nal_size,
+ }
+ 
+ bool H264Decoder::dump_last_frame_ppm(const std::string& path) {
++    if (std::getenv("YANDA_EMBEDDED")) return false; // No implicit capture of personal media.
+     if (!impl_ || impl_->last_w == 0) return false;
+     // Diagnostic dumps must not force readback on the live GPU path.
+     if (impl_->frame_is_hw && impl_->frame->format == AV_PIX_FMT_D3D11) return false;
+diff --git a/src/video/video_renderer.cpp b/src/video/video_renderer.cpp
+index 426a93a..7c140c9 100644
+--- a/src/video/video_renderer.cpp
++++ b/src/video/video_renderer.cpp
+@@ -18,6 +18,7 @@
+ #include "imgui_impl_sdlrenderer2.h"
+ 
+ #include <array>
++#include <cstdlib>
+ #include <chrono>
+ #include <cmath>
+ #include <cstdio>
+@@ -614,6 +615,7 @@ bool VideoRenderer::clear_session_if_active(const std::string& session_id) {
+     has_device_ = false;
+     device_ = {};
+     LOG_INFO << "Connection ended: cleared active session=" << session_id;
++    LOG_INFO << "YANDA_DISCONNECTED";
+     return true;
+ }
+ 
+@@ -786,9 +788,11 @@ void VideoRenderer::run(const std::string& title) {
+                               : available.y + (available.h - initial_h) / 2;
+         }
+     }
++    const bool yanda_embedded = std::getenv("YANDA_EMBEDDED") != nullptr;
++    if (yanda_embedded) { initial_x = -32000; initial_y = -32000; }
+     SDL_Window*   window   = SDL_CreateWindow(
+         title.c_str(), initial_x, initial_y, initial_w, initial_h,
+-        SDL_WINDOW_RESIZABLE | SDL_WINDOW_BORDERLESS);
++        SDL_WINDOW_RESIZABLE | SDL_WINDOW_BORDERLESS | (yanda_embedded ? SDL_WINDOW_HIDDEN : 0));
+     // Read the initial vsync preference from LiveSettings (default
+     // true). Toggling at runtime is handled by SDL_RenderSetVSync
+     // below in the render loop.
+@@ -931,7 +935,7 @@ void VideoRenderer::run(const std::string& title) {
+     ui.diagnostics = preferences.diagnostics;
+     if (live_settings_)
+         ui.chromeless = live_settings_->chromeless.load(std::memory_order_relaxed);
+-    if (SDL_SetWindowHitTest(window, hit_test_cb, &ui) != 0)
++    if (!yanda_embedded && SDL_SetWindowHitTest(window, hit_test_cb, &ui) != 0)
+         LOG_WARN << "Window resize hit-test unavailable: " << SDL_GetError();
+     if (ui.chromeless) SDL_SetWindowMinimumSize(window, 160, 120);
+ 
+@@ -1070,6 +1074,7 @@ void VideoRenderer::run(const std::string& title) {
+     // entry so the new window fits inside the previous chrome window's
+     // bounds. Manual resizing stays free; fit_inside preserves video aspect.
+     auto snap_to_video_aspect = [&]() {
++        if (yanda_embedded) return;
+         if (!ui.chromeless || fullscreen) return;
+         if (video_tex_w <= 0 || video_tex_h <= 0) return;
+         int wnow = 0, hnow = 0;
+@@ -1096,6 +1101,7 @@ void VideoRenderer::run(const std::string& title) {
+     // axis preservation effectively swaps width/height across the
+     // rotation so screen real estate stays roughly constant.
+     auto snap_preserving_area = [&]() {
++        if (yanda_embedded) return;
+         if (!ui.chromeless || fullscreen) return;
+         if (video_tex_w <= 0 || video_tex_h <= 0) return;
+         int wnow = 0, hnow = 0;
+@@ -1118,7 +1124,7 @@ void VideoRenderer::run(const std::string& title) {
+ 
+     ap::platform::FirewallMonitor firewall_monitor;
+     while (running_.load()) {
+-        if (show_requested_.exchange(false)) {
++        if (show_requested_.exchange(false) && !yanda_embedded) {
+             SDL_ShowWindow(window);
+             if (SDL_GetWindowFlags(window) & SDL_WINDOW_MINIMIZED)
+                 SDL_RestoreWindow(window);
+@@ -1193,6 +1199,7 @@ void VideoRenderer::run(const std::string& title) {
+                 running_ = false;
+                 break;
+             }
++            if (yanda_embedded) continue; // Host owns controls and window lifecycle.
+             const ImGuiIO& io_poll = ImGui::GetIO();
+             // A focused panel captures navigation keys even when no field is
+             // being edited. Keep receiver shortcuts global in that case;
+@@ -1311,6 +1318,7 @@ void VideoRenderer::run(const std::string& title) {
+                 video_tex_w   = w;
+                 video_tex_h   = h;
+                 video_tex_fmt = desired_fmt;
++                LOG_INFO << "YANDA_VIDEO " << w << 'x' << h;
+                 LOG_INFO << "VideoRenderer texture ("
+                          << (desired_fmt == SDL_PIXELFORMAT_NV12 ? "NV12"
+                              : desired_fmt == SDL_PIXELFORMAT_ARGB8888 ? "GPU BGRA"
+diff --git a/tools/test_yanda_audio_disabled.cpp b/tools/test_yanda_audio_disabled.cpp
+new file mode 100644
+--- /dev/null
++++ b/tools/test_yanda_audio_disabled.cpp
+@@ -0,0 +1,28 @@
++#include "audio/audio_output.h"
++#include <SDL.h>
++#include <cstdio>
++#include <cstdlib>
++
++void disabled(const char* value) {
++#if defined(_WIN32)
++    _putenv_s("YANDA_AUDIO_DISABLED", value);
++#else
++    setenv("YANDA_AUDIO_DISABLED", value, 1);
++#endif
++}
++
++int main() {
++    SDL_setenv("SDL_AUDIODRIVER", "dummy", 1);
++    disabled("1");
++    ap::audio::SdlAudioOutput output;
++    if (!output.start(48000, 2) || SDL_WasInit(SDL_INIT_AUDIO) != 0) return 1;
++    const int16_t pcm[8] = {1, -1, 2, -2, 3, -3, 4, -4};
++    output.push(pcm, 8);
++    if (output.queued_bytes() != 0 || output.pending_ns() != 0) return 2;
++    output.stop();
++    disabled("0");
++    if (!output.start(48000, 2) || SDL_WasInit(SDL_INIT_AUDIO) == 0) return 3;
++    output.stop(); SDL_Quit();
++    std::puts("PASS: disabled audio never opens a device; normal mode opens dummy output");
++    return 0;
++}

@@ -1,0 +1,83 @@
+{
+  "date": "2026-11-05",
+  "status": "PASS_SCOPED_PROJECT_CLEANUP",
+  "removed": [
+    {
+      "path": "src-tauri/target/debug/incremental",
+      "bytes": 1762515419,
+      "files": 1675,
+      "status": "REMOVED_REGENERABLE_CACHE"
+    },
+    {
+      "path": "src-tauri/target/release/incremental",
+      "bytes": 0,
+      "files": 0,
+      "status": "REMOVED_REGENERABLE_CACHE"
+    },
+    {
+      "path": "build/android-sdk-unpack",
+      "bytes": 249418589,
+      "files": 11511,
+      "status": "REMOVED_REGENERABLE_CACHE"
+    },
+    {
+      "path": "build/native-smoke-webview",
+      "bytes": 15825875,
+      "files": 206,
+      "status": "REMOVED_REGENERABLE_CACHE"
+    },
+    {
+      "path": "build/android-parser-tests",
+      "bytes": 9313,
+      "files": 3,
+      "status": "REMOVED_REGENERABLE_CACHE"
+    },
+    {
+      "path": "build/adb-smoke",
+      "bytes": 0,
+      "files": 0,
+      "status": "REMOVED_REGENERABLE_CACHE"
+    },
+    {
+      "path": "dist",
+      "bytes": 337560,
+      "files": 5,
+      "status": "REMOVED_REGENERABLE_CACHE"
+    }
+  ],
+  "bytesRemoved": 2028106756,
+  "historicalFilesMoved": [
+    "build/final-pe-inspection.json",
+    "build/security-airplay-build.log",
+    "build/security-airplay-final-build.log",
+    "build/security-android-build.log",
+    "build/security-android-receiver-build.log",
+    "build/security-desktop-build.log",
+    "build/security-desktop-final-build.log",
+    "build/security-e2e-final.log",
+    "build/security-e2e-unrestricted.log",
+    "build/security-e2e.log",
+    "build/security-final-tree.stderr",
+    "build/security-format.log",
+    "build/security-native-final.log",
+    "build/security-native-smoke.log",
+    "build/security-npm-install.log",
+    "build/security-rust-check.log",
+    "build/security-rust-clippy.log",
+    "build/security-rust-tests.log",
+    "build/security-web-build.log"
+  ],
+  "historyDestination": "archive/test-runs/cleanup-2026-11-05",
+  "preserved": [
+    ".local including signing/recovery/security VM and saved trace",
+    "build/android-signing",
+    "build/source-inputs",
+    "build/android final APK",
+    "build/airplay and android receiver test/build outputs",
+    "build/black-screen-repro and hotfix-backup",
+    "release and archive/releases",
+    "SDKs, node_modules, upstream sources and caches needed offline"
+  ],
+  "productCodeExecuted": false,
+  "virtualMachineStarted": false
+}

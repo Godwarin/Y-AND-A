@@ -1,0 +1,40 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Y AND A",
+  "version": "0.4.0-rc.1",
+  "identifier": "local.yanda.desktop",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://127.0.0.1:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Y AND A",
+        "width": 1440,
+        "height": 940,
+        "minWidth": 900,
+        "minHeight": 650,
+        "decorations": false,
+        "backgroundColor": "#080808",
+        "center": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' asset: data:; connect-src ipc: http://ipc.localhost; object-src 'none'; frame-src 'none'",
+      "devCsp": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' asset: data:; connect-src ipc: http://ipc.localhost http://127.0.0.1:1420 ws://127.0.0.1:1420; object-src 'none'; frame-src 'none'"
+    }
+  },
+  "bundle": {
+    "active": false,
+    "resources": {
+      "../runtime/": "runtime/"
+    },
+    "icon": [
+      "icons/icon.ico"
+    ]
+  }
+}

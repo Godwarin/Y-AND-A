@@ -1,0 +1,41 @@
+{
+  "name": "y-and-a",
+  "version": "0.4.0-rc.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/run-tool.mjs vite --host 127.0.0.1 --port 1420 --strictPort",
+    "build": "node scripts/build-web.mjs",
+    "check": "node scripts/run-tool.mjs tsc -b --pretty false",
+    "test": "node scripts/run-tool.mjs vitest run",
+    "tauri": "node scripts/run-tool.mjs tauri",
+    "desktop": "node scripts/run-tool.mjs tauri dev",
+    "package": "node scripts/run-tool.mjs tauri build --no-bundle",
+    "lint": "node scripts/run-tool.mjs eslint src tests *.ts",
+    "format": "node scripts/run-tool.mjs prettier --write src tests scripts/*.mjs *.ts eslint.config.js",
+    "e2e": "node scripts/run-tool.mjs playwright test"
+  },
+  "overrides": {"minimatch":"11.0.1"},
+  "dependencies": {
+    "@tauri-apps/api": "2.12.4",
+    "lucide-react": "1.66.0",
+    "qrcode": "1.5.4",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "^1.64.1",
+    "@tauri-apps/cli": "2.12.4",
+    "@types/qrcode": "1.5.6",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "@vitejs/plugin-react": "6.2.1",
+    "eslint": "10.14.0",
+    "prettier": "^3.9.10",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.1",
+    "vite": "8.3.5",
+    "vitest": "5.1.0"
+  }
+}

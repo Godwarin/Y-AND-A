@@ -1,0 +1,1050 @@
+{
+  "date": "2026-11-05T08:41:46.805060+00:00",
+  "artifactVersion": "BETA-0.42",
+  "status": "PASS_METADATA_CHECKS",
+  "productCodeExecuted": false,
+  "vmStarted": false,
+  "pathNegativeFixturesRejected": 12,
+  "archives": [
+    {
+      "path": "Y-AND-A-BETA-0.42-win64.zip",
+      "sha256": "f64305cc3be97d2356d1446b984a015d255eec80c7e18d06a133eb860f75eaea",
+      "entries": 582,
+      "bytesRead": 73509305,
+      "textEntriesScanned": 80,
+      "problems": [],
+      "crcAndFullReadVerified": true
+    },
+    {
+      "path": "Y-AND-A-BETA-0.42-source.zip",
+      "sha256": "5403f994ca2ee2a401d621c461c13dbc314db5fc19df761a453178eb7e9d6d02",
+      "entries": 818,
+      "bytesRead": 158605807,
+      "textEntriesScanned": 366,
+      "problems": [],
+      "crcAndFullReadVerified": true
+    },
+    {
+      "path": "Y-AND-A-BETA-0.42-android.apk",
+      "sha256": "181bf5a6e0159708cd8726a8872bb3eb79a709241ffca483c76d5b78acd298b3",
+      "entries": 11,
+      "bytesRead": 642118,
+      "textEntriesScanned": 5,
+      "problems": [],
+      "crcAndFullReadVerified": true
+    }
+  ],
+  "peImports": [
+    {
+      "path": "runtime/airplay-yanda/airplay-windows.exe",
+      "imports": [
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-environment-l1-1-0.dll",
+        "api-ms-win-crt-filesystem-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-locale-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-time-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "avcodec-62.dll",
+        "avformat-62.dll",
+        "avutil-60.dll",
+        "d3d11.dll",
+        "dnsapi.dll",
+        "dwmapi.dll",
+        "imm32.dll",
+        "iphlpapi.dll",
+        "kernel32.dll",
+        "libcrypto-3-x64.dll",
+        "msvcp140.dll",
+        "ole32.dll",
+        "oleaut32.dll",
+        "plist-2.0.dll",
+        "sdl2.dll",
+        "sdl2_ttf.dll",
+        "setupapi.dll",
+        "shell32.dll",
+        "swscale-9.dll",
+        "user32.dll",
+        "vcruntime140.dll",
+        "vcruntime140_1.dll",
+        "ws2_32.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/airplay-yanda/avcodec-62.dll",
+      "imports": [
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-time-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "avutil-60.dll",
+        "kernel32.dll",
+        "ole32.dll",
+        "vcruntime140.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/airplay-yanda/avformat-62.dll",
+      "imports": [
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-environment-l1-1-0.dll",
+        "api-ms-win-crt-filesystem-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-time-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "avcodec-62.dll",
+        "avutil-60.dll",
+        "crypt32.dll",
+        "kernel32.dll",
+        "ncrypt.dll",
+        "secur32.dll",
+        "vcruntime140.dll",
+        "ws2_32.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/airplay-yanda/avutil-60.dll",
+      "imports": [
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-environment-l1-1-0.dll",
+        "api-ms-win-crt-filesystem-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-time-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "bcrypt.dll",
+        "kernel32.dll",
+        "user32.dll",
+        "vcruntime140.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/airplay-yanda/brotlicommon.dll",
+      "imports": [
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "kernel32.dll",
+        "vcruntime140.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/airplay-yanda/brotlidec.dll",
+      "imports": [
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "brotlicommon.dll",
+        "kernel32.dll",
+        "vcruntime140.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/airplay-yanda/brotlienc.dll",
+      "imports": [
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "brotlicommon.dll",
+        "kernel32.dll",
+        "vcruntime140.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/airplay-yanda/bz2.dll",
+      "imports": [
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "kernel32.dll",
+        "vcruntime140.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/airplay-yanda/concrt140.dll",
+      "imports": [
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "kernel32.dll",
+        "msvcp140.dll",
+        "vcruntime140.dll",
+        "vcruntime140_1.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/airplay-yanda/freetype.dll",
+      "imports": [
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-environment-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "brotlidec.dll",
+        "bz2.dll",
+        "kernel32.dll",
+        "libpng16.dll",
+        "vcruntime140.dll",
+        "z.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/airplay-yanda/legacy.dll",
+      "imports": [
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "kernel32.dll",
+        "libcrypto-3-x64.dll",
+        "vcruntime140.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/airplay-yanda/libcrypto-3-x64.dll",
+      "imports": [
+        "advapi32.dll",
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-environment-l1-1-0.dll",
+        "api-ms-win-crt-filesystem-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-time-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "crypt32.dll",
+        "kernel32.dll",
+        "user32.dll",
+        "vcruntime140.dll",
+        "ws2_32.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/airplay-yanda/libpng16.dll",
+      "imports": [
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-filesystem-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-time-l1-1-0.dll",
+        "kernel32.dll",
+        "vcruntime140.dll",
+        "z.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/airplay-yanda/libssl-3-x64.dll",
+      "imports": [
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-environment-l1-1-0.dll",
+        "api-ms-win-crt-filesystem-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-time-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "kernel32.dll",
+        "libcrypto-3-x64.dll",
+        "vcruntime140.dll",
+        "ws2_32.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/airplay-yanda/msvcp140.dll",
+      "imports": [
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-environment-l1-1-0.dll",
+        "api-ms-win-crt-filesystem-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-locale-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-time-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "kernel32.dll",
+        "vcruntime140.dll",
+        "vcruntime140_1.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/airplay-yanda/msvcp140_1.dll",
+      "imports": [
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "kernel32.dll",
+        "msvcp140.dll",
+        "vcruntime140.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/airplay-yanda/msvcp140_2.dll",
+      "imports": [
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-locale-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "kernel32.dll",
+        "msvcp140.dll",
+        "vcruntime140.dll",
+        "vcruntime140_1.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/airplay-yanda/msvcp140_atomic_wait.dll",
+      "imports": [
+        "advapi32.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-locale-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "kernel32.dll",
+        "msvcp140.dll",
+        "vcruntime140.dll",
+        "vcruntime140_1.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/airplay-yanda/msvcp140_codecvt_ids.dll",
+      "imports": [
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "kernel32.dll",
+        "vcruntime140.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/airplay-yanda/plist-2.0.dll",
+      "imports": [
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-filesystem-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-time-l1-1-0.dll",
+        "kernel32.dll",
+        "vcruntime140.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/airplay-yanda/SDL2.dll",
+      "imports": [
+        "advapi32.dll",
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "gdi32.dll",
+        "imm32.dll",
+        "kernel32.dll",
+        "ole32.dll",
+        "oleaut32.dll",
+        "setupapi.dll",
+        "shell32.dll",
+        "user32.dll",
+        "vcruntime140.dll",
+        "version.dll",
+        "winmm.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/airplay-yanda/SDL2_ttf.dll",
+      "imports": [
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "freetype.dll",
+        "kernel32.dll",
+        "sdl2.dll",
+        "vcruntime140.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/airplay-yanda/swscale-9.dll",
+      "imports": [
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "avutil-60.dll",
+        "kernel32.dll",
+        "vcruntime140.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/airplay-yanda/vccorlib140.dll",
+      "imports": [
+        "api-ms-win-core-winrt-error-l1-1-0.dll",
+        "api-ms-win-core-winrt-l1-1-0.dll",
+        "api-ms-win-core-winrt-string-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "kernel32.dll",
+        "msvcp140.dll",
+        "ole32.dll",
+        "oleaut32.dll",
+        "vcruntime140.dll",
+        "vcruntime140_1.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/airplay-yanda/vcruntime140.dll",
+      "imports": [
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "kernel32.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/airplay-yanda/vcruntime140_1.dll",
+      "imports": [
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "kernel32.dll",
+        "vcruntime140.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/airplay-yanda/vcruntime140_threads.dll",
+      "imports": [
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-time-l1-1-0.dll",
+        "kernel32.dll",
+        "vcruntime140.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/airplay-yanda/z.dll",
+      "imports": [
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "kernel32.dll",
+        "vcruntime140.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/android-yanda/avcodec-62.dll",
+      "imports": [
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-time-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "avutil-60.dll",
+        "kernel32.dll",
+        "ole32.dll",
+        "vcruntime140.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/android-yanda/avformat-62.dll",
+      "imports": [
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-environment-l1-1-0.dll",
+        "api-ms-win-crt-filesystem-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-time-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "avcodec-62.dll",
+        "avutil-60.dll",
+        "crypt32.dll",
+        "kernel32.dll",
+        "ncrypt.dll",
+        "secur32.dll",
+        "vcruntime140.dll",
+        "ws2_32.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/android-yanda/avutil-60.dll",
+      "imports": [
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-environment-l1-1-0.dll",
+        "api-ms-win-crt-filesystem-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-time-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "bcrypt.dll",
+        "kernel32.dll",
+        "user32.dll",
+        "vcruntime140.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/android-yanda/brotlicommon.dll",
+      "imports": [
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "kernel32.dll",
+        "vcruntime140.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/android-yanda/brotlidec.dll",
+      "imports": [
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "brotlicommon.dll",
+        "kernel32.dll",
+        "vcruntime140.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/android-yanda/brotlienc.dll",
+      "imports": [
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "brotlicommon.dll",
+        "kernel32.dll",
+        "vcruntime140.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/android-yanda/bz2.dll",
+      "imports": [
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "kernel32.dll",
+        "vcruntime140.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/android-yanda/concrt140.dll",
+      "imports": [
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "kernel32.dll",
+        "msvcp140.dll",
+        "vcruntime140.dll",
+        "vcruntime140_1.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/android-yanda/freetype.dll",
+      "imports": [
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-environment-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "brotlidec.dll",
+        "bz2.dll",
+        "kernel32.dll",
+        "libpng16.dll",
+        "vcruntime140.dll",
+        "z.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/android-yanda/legacy.dll",
+      "imports": [
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "kernel32.dll",
+        "libcrypto-3-x64.dll",
+        "vcruntime140.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/android-yanda/libcrypto-3-x64.dll",
+      "imports": [
+        "advapi32.dll",
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-environment-l1-1-0.dll",
+        "api-ms-win-crt-filesystem-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-time-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "crypt32.dll",
+        "kernel32.dll",
+        "user32.dll",
+        "vcruntime140.dll",
+        "ws2_32.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/android-yanda/libpng16.dll",
+      "imports": [
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-filesystem-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-time-l1-1-0.dll",
+        "kernel32.dll",
+        "vcruntime140.dll",
+        "z.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/android-yanda/libssl-3-x64.dll",
+      "imports": [
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-environment-l1-1-0.dll",
+        "api-ms-win-crt-filesystem-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-time-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "kernel32.dll",
+        "libcrypto-3-x64.dll",
+        "vcruntime140.dll",
+        "ws2_32.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/android-yanda/msvcp140.dll",
+      "imports": [
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-environment-l1-1-0.dll",
+        "api-ms-win-crt-filesystem-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-locale-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-time-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "kernel32.dll",
+        "vcruntime140.dll",
+        "vcruntime140_1.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/android-yanda/msvcp140_1.dll",
+      "imports": [
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "kernel32.dll",
+        "msvcp140.dll",
+        "vcruntime140.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/android-yanda/msvcp140_2.dll",
+      "imports": [
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-locale-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "kernel32.dll",
+        "msvcp140.dll",
+        "vcruntime140.dll",
+        "vcruntime140_1.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/android-yanda/msvcp140_atomic_wait.dll",
+      "imports": [
+        "advapi32.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-locale-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "kernel32.dll",
+        "msvcp140.dll",
+        "vcruntime140.dll",
+        "vcruntime140_1.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/android-yanda/msvcp140_codecvt_ids.dll",
+      "imports": [
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "kernel32.dll",
+        "vcruntime140.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/android-yanda/plist-2.0.dll",
+      "imports": [
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-filesystem-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-time-l1-1-0.dll",
+        "kernel32.dll",
+        "vcruntime140.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/android-yanda/SDL2.dll",
+      "imports": [
+        "advapi32.dll",
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "gdi32.dll",
+        "imm32.dll",
+        "kernel32.dll",
+        "ole32.dll",
+        "oleaut32.dll",
+        "setupapi.dll",
+        "shell32.dll",
+        "user32.dll",
+        "vcruntime140.dll",
+        "version.dll",
+        "winmm.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/android-yanda/SDL2_ttf.dll",
+      "imports": [
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "freetype.dll",
+        "kernel32.dll",
+        "sdl2.dll",
+        "vcruntime140.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/android-yanda/swscale-9.dll",
+      "imports": [
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "avutil-60.dll",
+        "kernel32.dll",
+        "vcruntime140.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/android-yanda/vccorlib140.dll",
+      "imports": [
+        "api-ms-win-core-winrt-error-l1-1-0.dll",
+        "api-ms-win-core-winrt-l1-1-0.dll",
+        "api-ms-win-core-winrt-string-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "kernel32.dll",
+        "msvcp140.dll",
+        "ole32.dll",
+        "oleaut32.dll",
+        "vcruntime140.dll",
+        "vcruntime140_1.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/android-yanda/vcruntime140.dll",
+      "imports": [
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "kernel32.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/android-yanda/vcruntime140_1.dll",
+      "imports": [
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "kernel32.dll",
+        "vcruntime140.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/android-yanda/vcruntime140_threads.dll",
+      "imports": [
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-time-l1-1-0.dll",
+        "kernel32.dll",
+        "vcruntime140.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/android-yanda/yanda-android.exe",
+      "imports": [
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-locale-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "avcodec-62.dll",
+        "avutil-60.dll",
+        "iphlpapi.dll",
+        "kernel32.dll",
+        "libcrypto-3-x64.dll",
+        "libssl-3-x64.dll",
+        "msvcp140.dll",
+        "sdl2.dll",
+        "swscale-9.dll",
+        "user32.dll",
+        "vcruntime140.dll",
+        "vcruntime140_1.dll",
+        "ws2_32.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "runtime/android-yanda/z.dll",
+      "imports": [
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "kernel32.dll",
+        "vcruntime140.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    },
+    {
+      "path": "Y AND A.exe",
+      "imports": [
+        "advapi32.dll",
+        "api-ms-win-core-synch-l1-2-0.dll",
+        "api-ms-win-core-winrt-error-l1-1-0.dll",
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-locale-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "bcryptprimitives.dll",
+        "combase.dll",
+        "comctl32.dll",
+        "dwmapi.dll",
+        "gdi32.dll",
+        "imm32.dll",
+        "kernel32.dll",
+        "ntdll.dll",
+        "ole32.dll",
+        "oleaut32.dll",
+        "shell32.dll",
+        "shlwapi.dll",
+        "user32.dll",
+        "ws2_32.dll"
+      ],
+      "unresolvedOnThisWindows": [],
+      "crtNotBesideImage": []
+    }
+  ],
+  "problems": [],
+  "memoryDesign": {
+    "archiveReadBlockBytes": 65536,
+    "maxPeReadBytes": 33554432
+  },
+  "limitations": [
+    "Not a runtime, malware or exhaustive secret audit",
+    "Nested dependency archives and binary string secrets are not recursively scanned",
+    "API-set imports are recognized by prefix; this host is not a fresh Windows installation"
+  ],
+  "frozenApplicationFilesChecked": 100,
+  "sourceArchiveDrift": {
+    "currentSnapshotDifferentFiles": [
+      ".gitignore",
+      "AGENTS.md",
+      "README.md",
+      "docs/ARCHITECTURE.md",
+      "docs/BINARY_RELEASE_CHECK.md",
+      "docs/BUILD_FROM_SOURCE.md",
+      "docs/CHANGELOG.md",
+      "docs/CLOSED_BETA.md",
+      "docs/CURATOR_HANDOFF.md",
+      "docs/ISOLATED_STAND_PLAN.md",
+      "docs/SECURITY_RELEASE_REVIEW.md",
+      "docs/TEST_RESULTS.md",
+      "docs/evidence/beta-0.42-apk-publication-review.json",
+      "docs/evidence/beta-0.42-binary-inspection.json",
+      "docs/evidence/beta-0.42-defender.json",
+      "docs/evidence/beta-0.42-dependency-osv-current.json",
+      "docs/evidence/beta-0.42-static-followup.json",
+      "docs/evidence/isolated-security-validation.json",
+      "scripts/check-release-readiness.ps1",
+      "scripts/prepare-github.py",
+      "scripts/verify-github-source.py"
+    ],
+    "applicationCodeDifferentFiles": [],
+    "reviewedSnapshotSha256": "b08f1121ed545466cc72473abc1c0961e77e045fa0f6ebed47a6dbe4b5f18e36",
+    "refreshNeededBeforePublication": true
+  },
+  "observedOwnPeakWorkingSetMiB": 32.6
+}

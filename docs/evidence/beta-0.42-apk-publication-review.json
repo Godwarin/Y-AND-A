@@ -1,0 +1,23 @@
+{
+  "date": "2026-11-05",
+  "artifactVersion": "BETA-0.42",
+  "status": "PASS_APK_SIGNATURE_MANIFEST_INSPECTION",
+  "apkSha256": "181bf5a6e0159708cd8726a8872bb3eb79a709241ffca483c76d5b78acd298b3",
+  "signerCertificateSha256": "2657a1dc1b3754231d3b6add16e51354f08bc8f0b26cd8137bac6d34fd0871c3",
+  "schemeV3": true,
+  "minSdk": 29,
+  "permissions": [
+    "android.permission.INTERNET",
+    "android.permission.CAMERA",
+    "android.permission.RECORD_AUDIO",
+    "android.permission.POST_NOTIFICATIONS",
+    "android.permission.FOREGROUND_SERVICE",
+    "android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION"
+  ],
+  "backupAllowed": false,
+  "cleartextTrafficAllowed": false,
+  "debuggable": false,
+  "physicalDeviceTest": "OWNER_REPORTED_VIDEO_AUDIO_PASS",
+  "dynamicSecurityRetest": "NEEDS_VALIDATION",
+  "apkExecuted": false
+}

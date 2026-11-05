@@ -1,0 +1,17 @@
+{
+  "name": "airplay-windows",
+  "version-string": "0.4.1",
+  "dependencies": [
+    "libplist",
+    "openssl",
+    {
+      "name": "ffmpeg",
+      "default-features": false,
+      "features": ["avcodec", "avformat", "swscale", "nvcodec"]
+    },
+    "sdl2",
+    "sdl2-ttf"
+  ],
+  "builtin-baseline": "afa249f12f52ed8a3b919f195495ba8b330288d1",
+  "overrides": [{"name":"ffmpeg","version":"8.1.2","port-version":3}]
+}

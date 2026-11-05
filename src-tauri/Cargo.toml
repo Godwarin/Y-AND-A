@@ -1,0 +1,21 @@
+[package]
+name = "y-and-a"
+version = "0.4.0-rc.1"
+description = "Y AND A — локальная трансляция экрана и звука"
+edition = "2021"
+license = "GPL-3.0-only"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+getrandom = "0.4"
+windows = { version = "0.61", features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging", "Win32_Graphics_Gdi", "Win32_System_Threading", "Win32_System_JobObjects", "Win32_System_Com", "Win32_System_Com_StructuredStorage", "Win32_System_Variant", "Win32_Media_Audio", "Win32_Security"] }
+
+[profile.release]
+strip = true
+lto = "thin"
+codegen-units = 1

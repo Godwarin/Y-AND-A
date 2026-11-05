@@ -1,0 +1,170 @@
+{
+  "date": "2026-11-05",
+  "artifactVersion": "BETA-0.42",
+  "componentHashes": {
+    "exe": "31b530fd988b7978c15aa700b9e68ad116587fa16ec7030816ba672c968948aa",
+    "androidReceiver": "cf7557a5a614db0152269eb07244f172adf05d0b8b61289a6b2a56ded9cdaf28",
+    "airplayReceiver": "bfdeca665aaf96b5e54cd63b12f6f64d5a153ed7972a75d3923e118e2918378a",
+    "apk": "181bf5a6e0159708cd8726a8872bb3eb79a709241ffca483c76d5b78acd298b3"
+  },
+  "status": "PASS",
+  "securityChecks": 13,
+  "protocolChecks": 13,
+  "targetExecuted": true,
+  "virtualMachineState": "saved",
+  "readerStopped": true,
+  "networkAdaptersDisabled": 8,
+  "baselineReady": true,
+  "controls": {
+    "allChildProcessesTerminated": true,
+    "osResourceLimits": true,
+    "emptyAllowlistEnvironment": true,
+    "scratchOnlyWrites": true,
+    "readOnlyTargetAndToolchain": true,
+    "externalNetworkDisabled": true,
+    "isolatedLoopback": true
+  },
+  "reason": "lpac69 completed both real frozen receiver suites in an offline guest after all dummy controls, private GUI and Python probes. AirPlay PID ownership independently verified by trusted parent via GetExtendedTcpTable, exact image path and Job PID membership; target cannot write the proof directory. No real phone media or production credentials.",
+  "hostAvailableMemoryMiBBeforeResume": 7722,
+  "dummyShellWriteVerified": true,
+  "targetFixtureManifestMatches": 103,
+  "fixtureKind": "Real frozen Android/AirPlay helpers, public synthetic keys, H264 and silent PCM, isolated loopback only",
+  "dummyLimits": {
+    "jobMiB": 2048,
+    "jobCpuSeconds": 180,
+    "scratchVolumeMiB": 512,
+    "processes": 16,
+    "ntfsPrincipalQuotaMiB": 128,
+    "processorHardCapPercent": 20,
+    "timeoutProbeWallSeconds": 10
+  },
+  "dummyResults": [
+    "Parent and descendant observed the allowlisted environment",
+    "Writes to target, tools, Public and Windows Temp refused; admin-only fixture read refused",
+    "Native marker persisted in assigned scratch; extending file above 128 MiB refused",
+    "Native child created, timeout terminated entire job, active process count returned to zero",
+    "Isolated TCP client/server exchanged one synthetic byte on 127.0.0.1",
+    "lpac62 loaded USER32 and created/destroyed a private dummy window",
+    "lpac62 Python probe verified parent/child scratch paths, denied writes, quota and descendant timeout"
+  ],
+  "controlIsoSha256": "76bac1f42c859db487e0d7da1cfee1ac030b9008f33ef746b5da99e5ad3360c1",
+  "toolIsoSha256": "9e3732ceeea9767ac72c97b6f5924681c494686c43b208c4ec1f81d9b88e668e",
+  "standSnapshot": "before-guest-crypto-acl-beta042",
+  "snapshotUuid": "313d48f4-4026-4a99-8740-348809af3555",
+  "guestRollbackVerified": true,
+  "lastConnectedControl": "lpac69",
+  "productTestCounts": {
+    "security": 13,
+    "protocol": 13
+  },
+  "systemControllerHandshakeVerified": true,
+  "lastAttemptFailure": "",
+  "privateGuiValidation": "NEEDS_VALIDATION",
+  "lpacContainerTokenConfirmed": true,
+  "lpacPolicyFunctionalProof": "PENDING",
+  "latestDummyAttempt": {
+    "attempt": "lpac69",
+    "allSevenControls": true,
+    "privateUser32WindowCreated": true,
+    "pythonParentChildQuotaVerified": true,
+    "descendantTimeoutVerified": true,
+    "trustedProofDirectoryTargetWriteDenied": true,
+    "explicitEnvironmentAllowlistNames": 26,
+    "jobMiB": 2048,
+    "cpuHardCapPercent": 20,
+    "cpuSeconds": 180,
+    "processLimit": 16,
+    "scratchQuotaMiB": 128,
+    "scratchVolumeMiB": 512,
+    "suiteWallSeconds": 180
+  },
+  "latestTargetAttempt": {
+    "attempt": "lpac69",
+    "status": "PASS",
+    "securityEntrypoint": "scripts/test-security-candidate.py",
+    "securityScriptSha256": "fbbb3d352ca28f407fdf211f0ece8a56deb52ca3c141cfb42ca29d2264e589d6",
+    "protocolEntrypoint": "scripts/test-android-protocol.py",
+    "protocolScriptSha256": "855aa83f0ed64b34dda55cc1b770071a580137e142ac88de9da9d6ee2f6d199e",
+    "securityChecks": 13,
+    "protocolChecks": 13,
+    "exitCode": 0,
+    "allChildrenTerminated": true,
+    "productExecutablesStarted": [
+      "runtime/android-yanda/yanda-android.exe",
+      "runtime/airplay-yanda/airplay-windows.exe"
+    ],
+    "desktopExeAndApkCodeExecuted": false,
+    "physicalPhoneTested": false
+  },
+  "currentGuestDeviceDaclChanged": false,
+  "historicalPreLpacCryptoDeviceProbe": {
+    "ordinaryEveryoneAllowMask": {
+      "KsecDD": "0x001201BF",
+      "CNG": "0x001201BF"
+    },
+    "everyoneSidTrustedSystemDllOnlyComparisonWin32": 0,
+    "deviceAccessStrict": {
+      "KsecDD": "read allowed, write and read/write denied",
+      "CNG": "read allowed, write and read/write denied"
+    },
+    "comparisonLoadedProduct": false,
+    "restrictedCodeOnlyComparisonWin32": 1114,
+    "restrictedSystemBcryptLoadWin32": 1114,
+    "deviceDaclChanged": true,
+    "authorizedByOwner": true,
+    "temporaryDevice": "KsecDD",
+    "temporaryMask": 3,
+    "loaderAfterGrantExit": 0,
+    "inPlaceRestoreVerified": true,
+    "cngOnlyGuiExit": 101114
+  },
+  "ownershipVerification": {
+    "trustedParentApi": "GetExtendedTcpTable",
+    "filter": "IPv4 LISTEN TCP7000 only",
+    "pidMustBelongToJob": true,
+    "imageMustMatchFrozenAirplayPath": true,
+    "proofTargetReadOnly": true,
+    "maxProofsPerJob": 16,
+    "usesPowerShellInTarget": false,
+    "usesGlobalTcpEnumerationInTarget": false
+  },
+  "priorFailureCause": "PowerShell Get-NetTCPConnection failed in LPAC with exit4294901760; direct TCP table query also restricted in target. This was a test-environment compatibility issue, not an observed product protection failure.",
+  "scopeLimitations": [
+    "Focused regression validation; not an exhaustive or independent penetration test",
+    "No fresh isolated Tauri/WebView2 smoke, Android OS intent/permission revocation, general fuzzing or LAN MITM exercise",
+    "Historical native24/AirPlay26/compile/frontend results retained for unchanged binaries; owner video/audio reports remain separate",
+    "AirPlay trusted LAN and first-receiver-name authenticity limitation remains; Windows Authenticode absent"
+  ],
+  "commands": [
+    "C:\\YandaTools\\Python\\python.exe -B C:\\YandaTarget\\run_guarded.py security",
+    "C:\\YandaTools\\Python\\python.exe -B C:\\YandaTarget\\run_guarded.py protocol"
+  ],
+  "environmentAllowlist": {
+    "SystemRoot": "C:\\Windows",
+    "WINDIR": "C:\\Windows",
+    "SystemDrive": "C:",
+    "PATH": "C:\\YandaTools\\Python;C:\\Windows\\System32;C:\\Windows;C:\\Windows\\System32\\WindowsPowerShell\\v1.0",
+    "PATHEXT": ".COM;.EXE;.BAT;.CMD",
+    "COMSPEC": "C:\\Windows\\System32\\cmd.exe",
+    "TEMP": "S:\\scratch\\temp",
+    "TMP": "S:\\scratch\\temp",
+    "HOME": "S:\\scratch\\home",
+    "USERPROFILE": "S:\\scratch\\home",
+    "APPDATA": "S:\\scratch\\home\\Roaming",
+    "LOCALAPPDATA": "S:\\scratch\\home\\Local",
+    "HOMEDRIVE": "S:",
+    "HOMEPATH": "\\scratch\\home",
+    "USERNAME": "YandaAuditTarget",
+    "USERDOMAIN": "<synthetic guest computer name>",
+    "OS": "Windows_NT",
+    "PROCESSOR_ARCHITECTURE": "AMD64",
+    "NUMBER_OF_PROCESSORS": "2",
+    "PYTHONHOME": "C:\\YandaTools\\Python",
+    "PYTHONNOUSERSITE": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "SDL_AUDIODRIVER": "dummy",
+    "YANDA_LISTENER_PROOF_DIR": "C:\\YandaTools\\ownership-<fresh public run GUID>",
+    "PROMPT": "$P$G",
+    "PSModulePath": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\Modules"
+  }
+}
