@@ -1,6 +1,6 @@
 # Передача проекта Куратору
 
-Обновлено 5 ноября 2026 года. Текущий этап — локальная подготовка к выгрузке в GitHub. Remote upload/commit/tag/release и изменение visibility на этом этапе не выполняются. Godwarin/Y-AND-A (id1444941523) проверен через connector: private,size0,admin/push доступны. Перед записью перепроверить head/содержимое и не перезаписывать чужие изменения.
+Обновлено 5 ноября 2026 года. По прямой команде владельца чистые исходники загружены в main закрытого репозитория Godwarin/Y-AND-A (id1444941523). Исходный snapshot: commit 0fb8cbe50f3298b9ac3d5f55bd59876fc58db73a, tree 5526bbe23b340e4cc78c44f57e48d2a871746c91. Все 308 remote blob hashes сверены с локальным snapshot, совпадение полное. Следующий отдельный docs commit фиксирует факт загрузки; source ZIP соответствует исходному commit. Visibility остаётся private. Tag, Release и assets пока не созданы.
 
 ## Приложение и доказательства
 
@@ -22,6 +22,6 @@ Windows ZIP переупаковывается с актуальными public 
 
 Порядок: prepare-github.py → verify-github-source.py → package.ps1 -FromTestedPackage → package-source.ps1 → sign-release.ps1 → verify-package.ps1/verify-release-signature.ps1 → check-release-readiness.ps1 -Scope BinaryReleaseCandidate → audit-release-light.py с output вне snapshot. Final packaging/scan receipts писать в publish, чтобы не создавать self-hash cycle. После упаковки не менять входящие source/evidence без повторной упаковки.
 
-GitHub connector поддерживает blobs/trees/commits, но не release asset upload. GitHub CLI не установлен. Для Releases использовать авторизованный web UI либо отдельно подготовить CLI; credentials из connector не извлекать. После нового решения владельца: перепроверить repo/head/visibility и hashes, загрузить чистые source files в main, поставить tag на фактический commit, создать Draft/Pre-release и приложить7assets, сверить uploaded hashes. Public visibility/публикация — отдельное решение. Private vulnerability reporting сейчас включённым не объявлять.
+GitHub connector поддерживает blobs/trees/commits, но не release asset upload. GitHub CLI не установлен. Браузерный этап остановлен CUA: адрес страницы Windows не удалось определить достаточно надёжно; продолжать UI ввод в этом turn нельзя. Playwright по умолчанию требует отсутствующий Chrome. Для Releases нужен доступный авторизованный web UI либо отдельно подготовленный CLI; credentials из connector не извлекать. Остаётся создать tag BETA-0.42 на исходном commit выше, Draft/Pre-release и приложить 7 подготовленных assets, сверить uploaded hashes. Public visibility/публикация — отдельное решение. Private vulnerability reporting сейчас включённым не объявлять.
 
 Продуктовые tests/builds и VM в этом подготовительном этапе не запускать: app code не меняется. Подробные старые записи сохранены локально в history/pre-github-upload-2026-11-05; в source export они не входят. Очистка ранее удалила1,89GiB caches; keys/backup/SDK/VM/версии/regression evidence сохранены.

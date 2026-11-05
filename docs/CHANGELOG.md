@@ -1,5 +1,12 @@
 # Изменения
 
+## BETA-0.42 — исходники в GitHub, 5 ноября 2026
+
+- По команде владельца загружены 308 чистых файлов в main закрытого Godwarin/Y-AND-A; remote blob hashes сверены полностью.
+- Исходный commit 0fb8cbe50f3298b9ac3d5f55bd59876fc58db73a соответствует подготовленному source ZIP. Следующий docs commit фиксирует факт выгрузки.
+- Ключи, backup, SDK, VM, runtime binaries и release assets в Git не включены; EXE/APK не менялись.
+- Tag и Release с семью assets остаются следующим этапом: connector не поддерживает assets, браузерный инструмент остановлен из-за неопределённого URL. Visibility не менялась.
+
 ## BETA-0.42 — подготовка GitHub,5 ноября 2026
 
 - Завершены isolated security13/13 и Android protocol13/13 на неизменённых receivers. Scope/ограничения и hardware reports разделены.

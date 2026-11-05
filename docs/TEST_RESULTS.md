@@ -18,4 +18,4 @@
 
 GitHub preparation выполняет metadata/file packaging без запуска product/tests/builds/VM на host. Windows ZIP обновляет docs при неизменности100application/runtime files. Source/signature/package/readiness и upload-plan связывают готовые assets с snapshot. Known-secret scan не доказывает отсутствие любого мыслимого секрета.
 
-Исходники, release и visibility в GitHub не выгружались/не менялись. Перед записью заново проверить remote head и hashes. Исторические журналы сохраняются локально в docs/history.
+GitHub upload, 5 ноября: PASS — все 308 исходных файлов в commit 0fb8cbe50f3298b9ac3d5f55bd59876fc58db73a совпали по Git blob SHA; recursive tree не усечён, лишних/отсутствующих файлов нет. Main обновлён с expected_sha и без force. Visibility повторно подтверждена private. Source ZIP соответствует исходному commit; отдельный docs commit фиксирует результат. Release list пуст: EXE/APK/assets/tag пока не загружены. CUA прекратил UI этап из-за неопределённого адреса браузера; это ограничение инструмента, не ошибка продукта. Новые product tests/builds/VM не запускались. Исторические журналы сохраняются локально в docs/history.
