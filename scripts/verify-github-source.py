@@ -41,7 +41,8 @@ CLEAN_OMITTED = {'docs/GITHUB_FIRST_STEPS.md', 'docs/RELEASE_NOTES_BETA_0.42.md'
                  'docs/CURATOR_HANDOFF.md', 'docs/ISOLATED_STAND_PLAN.md',
                  'AGENTS.md', 'CODEX_PROMPT.md', 'ЗАПУСТИТЬ Y AND A.cmd', 'СОХРАНИТЬ КЛЮЧИ.cmd',
                  'scripts/backup-android-signing.ps1', 'scripts/signing-backup-crypto.ps1',
-                 'scripts/test-signing-backup.ps1', 'scripts/protect-build-workspace.ps1'}
+                 'scripts/test-signing-backup.ps1', 'scripts/protect-build-workspace.ps1',
+                 'vendor/42-animation-kit/README_FOR_CODEX.md', 'vendor/42-animation-kit/START_HERE.md'}
 
 
 def digest(path):
