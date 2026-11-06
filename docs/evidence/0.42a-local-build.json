@@ -1,0 +1,46 @@
+{
+  "artifactVersion": "0.42a",
+  "productVersion": "0.4.0-rc.2",
+  "status": "OWNER_DEVICE_TEST_PASSED_ISOLATED_PENDING",
+  "publicationApproved": false,
+  "componentHashes": {
+    "apk": "2d0ca92110b2a7dee901e4de911ff96bf7c8f69d76e8b612008a3bcdaad4e357",
+    "exe": "03f4ab5b72b410cec12f4e83561f27785ca2b800e48bb8cd6ee0333b8b908f15",
+    "androidReceiver": "5ea373a9172f84a1ffb466c390ccc804a17e21d8fa222cc2e0299f4df4ce48a5",
+    "airplayReceiver": "4be828b9978e08232f3d9581527d4ad68d2cc37148d83fbdca5a90f421cfe8d6"
+  },
+  "apkSigningCertificateSha256": "2657a1dc1b3754231d3b6add16e51354f08bc8f0b26cd8137bac6d34fd0871c3",
+  "apkVersionCode": 401,
+  "windowsArchiveFilesVerified": 563,
+  "oldFrozenApplicationFilesVerified": 100,
+  "checks": {
+    "typescript": "PASS",
+    "eslint": "PASS",
+    "vitest": "3 PASS",
+    "playwrightEdge": "8 PASS",
+    "cargoTest": "PASS",
+    "cargoClippy": "PASS",
+    "tauriRelease": "PASS",
+    "airplayRelease": "PASS",
+    "androidReceiverRelease": "PASS",
+    "androidApkV3": "PASS",
+    "isolatedReceivers": "NEEDS_VALIDATION",
+    "ownerPhones": "OWNER_REPORTED_PASS",
+    "androidApkBytecode": "PASS_STATIC"
+  },
+  "assets": [
+    {
+      "name": "Y-AND-A-0.42a-device-test-win64.zip",
+      "bytes": 31215188,
+      "sha256": "f3a5bb02aa1a5d159aeb9c6696ca091d8f751425295f25b3bc1eca2d5b798099"
+    },
+    {
+      "name": "Y-AND-A-0.42a-android.apk",
+      "bytes": 316141,
+      "sha256": "2d0ca92110b2a7dee901e4de911ff96bf7c8f69d76e8b612008a3bcdaad4e357"
+    }
+  ],
+  "isolatedEvidence": "docs/evidence/0.42a-isolated-validation.json",
+  "ownerDeviceEvidence": "docs/evidence/0.42a-owner-validation.json",
+  "physicalDeviceStatus": "UNVERIFIED_ON_DEVICE"
+}

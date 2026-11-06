@@ -116,6 +116,7 @@ static std::pair<SOCKET,SSL*> authenticate(SOCKET listener,SSL_CTX* ctx,const st
     struct Pending {SOCKET fd;SSL* ssl;uint32_t ip;Deadline deadline;bool tls=false,wantWrite=false;size_t used=0;std::array<unsigned char,72> auth{};};
     std::vector<Pending> pending;pending.reserve(8);
     auto rateStart=std::chrono::steady_clock::now();unsigned accepted=0;
+    std::array<uint32_t,32> admittedIps{};
     auto dispose=[](Pending& p){SSL_free(p.ssl);closesocket(p.fd);};
     while(!stopping && std::chrono::steady_clock::now()<expires) {
         fd_set readable,writable;FD_ZERO(&readable);FD_ZERO(&writable);FD_SET(listener,&readable);
@@ -142,11 +143,14 @@ static std::pair<SOCKET,SSL*> authenticate(SOCKET listener,SSL_CTX* ctx,const st
             sockaddr_in peer{};int len=sizeof peer;SOCKET fd=accept(listener,reinterpret_cast<sockaddr*>(&peer),&len);if(fd==INVALID_SOCKET)continue;
             uint32_t ip=ntohl(peer.sin_addr.s_addr);
             if(now-rateStart>=std::chrono::seconds(1)){rateStart=now;accepted=0;}
-            if(++accepted>32 || (!privateIp(ip) && (ip>>24)!=127) || pending.size()>=8 || std::any_of(pending.begin(),pending.end(),[&](const Pending& p){return p.ip==ip;})){closesocket(fd);continue;}
+            if(accepted>=admittedIps.size() || (!privateIp(ip) && (ip>>24)!=127) || pending.size()>=8 ||
+                std::any_of(pending.begin(),pending.end(),[&](const Pending& p){return p.ip==ip;}) ||
+                std::count(admittedIps.begin(),admittedIps.begin()+accepted,ip)>=4){closesocket(fd);continue;}
             u_long nonblocking=1;if(ioctlsocket(fd,FIONBIO,&nonblocking)!=0){closesocket(fd);continue;}
             BOOL yes=TRUE;setsockopt(fd,IPPROTO_TCP,TCP_NODELAY,reinterpret_cast<char*>(&yes),sizeof yes);
             SSL* ssl=SSL_new(ctx);if(!ssl){closesocket(fd);continue;}SSL_set_fd(ssl,static_cast<int>(fd));
             pending.push_back(Pending{fd,ssl,ip,std::min(expires,now+std::chrono::seconds(4))});
+            admittedIps[accepted++]=ip;
         }
     }
     for(auto& p:pending)dispose(p);return {INVALID_SOCKET,nullptr};
@@ -201,7 +205,7 @@ int main(int argc,char** argv) {
         std::string token;std::getline(std::cin,token);
         require(token.size()==64 && token.find_first_not_of("0123456789abcdef")==std::string::npos);
         WSADATA ws{};require(WSAStartup(MAKEWORD(2,2),&ws)==0);
-        SSL_CTX* ctx=SSL_CTX_new(TLS_server_method());require(ctx!=nullptr);SSL_CTX_set_min_proto_version(ctx,TLS1_3_VERSION);
+        SSL_CTX* ctx=SSL_CTX_new(TLS_server_method());require(ctx!=nullptr);require(SSL_CTX_set_min_proto_version(ctx,TLS1_3_VERSION)==1);
         EVP_PKEY* key=EVP_PKEY_Q_keygen(nullptr,nullptr,"RSA",2048);require(key!=nullptr);
         X509* cert=X509_new();require(cert!=nullptr);X509_set_version(cert,2);ASN1_INTEGER_set(X509_get_serialNumber(cert),1);
         X509_gmtime_adj(X509_get_notBefore(cert),-60);X509_gmtime_adj(X509_get_notAfter(cert),86400);X509_set_pubkey(cert,key);

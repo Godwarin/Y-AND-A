@@ -13,7 +13,7 @@
 
 ## Компоненты и ограничения Android
 
-- `MainActivity`: установка/сканирование/consent, тёмный интерфейс, runtime audio/camera/notification permissions. QR/deep-link данные остаются в памяти. Автоматического восстановления screen permission нет.
+- `MainActivity`: сканирование внутри приложения, ручной ввод и системное согласие. Данные QR остаются в памяти. Внешние Intent не выбирают получателя. Новый сеанс требует нового согласия на захват.
 - `ScanActivity`: offline ZXing core 3.5.4 через Android Camera preview; камера закрывается при onPause. Нет Google Play Services, сетевой загрузки моделей и отправки кадров.
 - `StreamService`: non-exported foreground service type mediaProjection, START_NOT_STICKY. startForeground выполняется после consent и до getMediaProjection; callback регистрируется до единственного VirtualDisplay.
 - `MediaCodec`: surface H264, 30 FPS по умолчанию/60 по настройке, 1920 px по длинной стороне по умолчанию, максимум 2560; размеры кратны 16. Codec-specific SPS/PPS передаются отдельно от кадров.

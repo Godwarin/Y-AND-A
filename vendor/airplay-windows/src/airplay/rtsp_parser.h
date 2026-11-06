@@ -46,8 +46,10 @@ struct Response {
 // exactly Content-Length bytes (0 if no header).
 class RequestReader {
 public:
-    explicit RequestReader(std::shared_ptr<std::atomic<bool>> cancelled = {})
-        : cancelled_(std::move(cancelled)) {}
+    explicit RequestReader(std::shared_ptr<std::atomic<bool>> cancelled = {},
+                           std::chrono::steady_clock::time_point preauth_deadline =
+                               std::chrono::steady_clock::time_point::max())
+        : cancelled_(std::move(cancelled)), preauth_deadline_(preauth_deadline) {}
     bool read(socket_t fd, Request& out);
     void authorized(bool value) { authorized_=value; }
 
@@ -57,6 +59,7 @@ private:
     bool authorized_=false;
     bool idle_=false;
     std::chrono::steady_clock::time_point deadline_;
+    const std::chrono::steady_clock::time_point preauth_deadline_;
     int receive(socket_t fd,char* data,int count);
     bool fill(socket_t fd, std::size_t need);
     bool read_headers(socket_t fd, Request& out, std::size_t& body_offset);

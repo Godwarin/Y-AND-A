@@ -1,0 +1,20 @@
+{
+  "date": "2026-11-06",
+  "artifactVersion": "0.42a",
+  "productVersion": "0.4.0-rc.2",
+  "status": "OWNER_REPORTED_PASS",
+  "scope": "Общий результат пользовательской проверки комплекта 0.42a на телефонах.",
+  "basis": "Ответ владельца после инструкции по проверке 0.42a: «тесты прошли успешны».",
+  "deviceModelsReported": false,
+  "individualScenariosReported": false,
+  "localReferenceComponentHashes": {
+    "apk": "2d0ca92110b2a7dee901e4de911ff96bf7c8f69d76e8b612008a3bcdaad4e357",
+    "exe": "03f4ab5b72b410cec12f4e83561f27785ca2b800e48bb8cd6ee0333b8b908f15",
+    "androidReceiver": "5ea373a9172f84a1ffb466c390ccc804a17e21d8fa222cc2e0299f4df4ce48a5",
+    "airplayReceiver": "4be828b9978e08232f3d9581527d4ad68d2cc37148d83fbdca5a90f421cfe8d6"
+  },
+  "deviceArtifactHashesVerified": false,
+  "agentPhysicalTested": false,
+  "isolatedSecurityStatus": "NEEDS_VALIDATION",
+  "physicalDeviceStatus": "UNVERIFIED_ON_DEVICE"
+}

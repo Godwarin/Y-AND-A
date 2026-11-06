@@ -56,5 +56,20 @@ config/release.json и scripts/release-layout.ps1 задают имя выпус
 
 В source checkout нет готовых Windows DLL, SDK/JDK, node_modules или signing secrets. Сначала подготовьте официальные tools и pinned dependencies по инструкции выше; read-only source snapshot не обещает offline build без отдельного dependency-sources комплекта. Для security аудита скачивание/install dependencies из target scripts запрещено: стенд заранее получает только уже доступные локальные tools через read-only ISO.
 
-Для ранее проверенной BETA-0.42 владелец использует PowerShell 7 и Python 3.11 или новее. Чтобы собрать загрузки без пересборки приложения, сначала выполните `python scripts/prepare-github.py`, затем `./scripts/package.ps1 -FromTestedPackage`, `./scripts/package-source.ps1` и `./scripts/verify-package.ps1`. Упаковщик сверяет файлы приложения с зафиксированными SHA-256. Для архива исходников требуются локальные исходные пакеты зависимостей, подготовленные командой collect-source-inputs.py.
-В подготовке к GitHub после package-source.ps1 выполнить sign-release.ps1, затем verify-package.ps1 и check-release-readiness.ps1 -Scope BinaryReleaseCandidate. Signing metadata отражает scoped regression status только при совпадении evidence и текущих test/component hashes. Смена label не пересобирает проверенные EXE/APK. Публикация и visibility остаются отдельным действием.
+Замороженная BETA-0.42 предшествует [исправлениям безопасности](SECURITY_REMEDIATION_2026-11-05.md). Для публикации нужны новый комплект и новые результаты по его хэшам. Штатные скрипты блокируют повторную подпись и готовность прежней метки.
+
+ImGui закреплён полным commit и списком SHA-256. Сборка использует `build/airplay/_deps/imgui-pinned-src`, проверяя его до компиляции. Для архива исходников используйте `scripts/collect-source-inputs.py` после подготовки закреплённых файлов и архивов. `package-source.ps1` повторно проверяет хэши ImGui и native архивов при упаковке. Если изменился утверждённый состав Windows ZIP, обновите `config/windows-package-files.json` по результатам проверки нового состава.
+
+Для 0.42a доступны отдельные входы архива. Режим ниже использует локальный кэш и закреплённый набор ImGui из каталога сборки. В кэше Cargo проверяются доступные архивы из `Cargo.lock`.
+
+```powershell
+python -B scripts/collect-source-inputs.py --artifact-version 0.42a
+python -B scripts/prepare-github.py --artifact-version 0.42a
+python -B scripts/verify-github-source.py --artifact-version 0.42a
+./scripts/package-source.ps1 -ArtifactVersion 0.42a
+./scripts/verify-package.ps1 -ArtifactVersion 0.42a -SourceOnly
+```
+
+Проверка `-SourceOnly` сверяет архив исходников с его манифестами. Проверка Windows ZIP, native smoke и сетевые тесты входят в отдельный этап.
+
+Для нового комплекта после упаковки и регрессионных проверок обновите записи о результатах по его хэшам, затем выполните `sign-release.ps1`, `verify-package.ps1` и `check-release-readiness.ps1 -Scope BinaryReleaseCandidate`. Подпись требует совпадения отдельного APK, вложенного APK и результата его проверки.

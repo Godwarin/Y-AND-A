@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <limits>
 
 extern "C" {
     #include <libavcodec/avcodec.h>
@@ -431,8 +432,11 @@ bool H264Decoder::decode(const uint8_t* nal_data, std::size_t nal_size,
         ? (impl_->vps_annexb.size() + impl_->sps_annexb.size() +
            impl_->pps_annexb.size())
         : 0;
-    if (buf.capacity() < nal_size + header_bytes) {
-        buf.reserve(nal_size + header_bytes);
+    constexpr auto max_packet_size = static_cast<std::size_t>(std::numeric_limits<int>::max());
+    if (header_bytes > max_packet_size || nal_size > max_packet_size - header_bytes) return false;
+    const std::size_t packet_size = nal_size + header_bytes;
+    if (buf.capacity() < packet_size + AV_INPUT_BUFFER_PADDING_SIZE) {
+        buf.reserve(packet_size + AV_INPUT_BUFFER_PADDING_SIZE);
     }
     if (is_idr) {
         if (!impl_->vps_annexb.empty()) {
@@ -445,10 +449,11 @@ bool H264Decoder::decode(const uint8_t* nal_data, std::size_t nal_size,
                    impl_->pps_annexb.begin(), impl_->pps_annexb.end());
     }
     buf.insert(buf.end(), nal_data, nal_data + nal_size);
+    buf.resize(packet_size + AV_INPUT_BUFFER_PADDING_SIZE, 0);
 
     av_packet_unref(impl_->pkt);
     impl_->pkt->data = buf.data();
-    impl_->pkt->size = static_cast<int>(buf.size());
+    impl_->pkt->size = static_cast<int>(packet_size);
 
     int ret = avcodec_send_packet(impl_->ctx, impl_->pkt);
     if (ret < 0 && ret != AVERROR(EAGAIN)) {

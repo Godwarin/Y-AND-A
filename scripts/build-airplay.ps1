@@ -1,4 +1,4 @@
-param([switch]$SkipTests,[switch]$GpuTests)
+param([switch]$SkipTests,[switch]$GpuTests,[switch]$UseCachedSdk,[ValidateRange(1,16)][int]$Jobs=2)
 $ErrorActionPreference='Stop'
 $projectRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 Set-Location -LiteralPath $projectRoot
@@ -12,6 +12,17 @@ if (!$vsRoot) { throw 'Нужен Visual Studio Build Tools с Desktop C++ и Wi
 $cmake=Join-Path $vsRoot 'Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe'
 $ctest=Join-Path (Split-Path $cmake) 'ctest.exe'
 if (!(Test-Path $source\src\main.cpp)) { throw 'Нет доработанного GPL source tree vendor/airplay-windows. Восстановите исходники проекта.' }
+$offlineOptions=@()
+if($UseCachedSdk){
+    $cachePath=Join-Path $projectRoot 'build/airplay/CMakeCache.txt'
+    $sdkEntry=Get-Content -LiteralPath $cachePath | Where-Object {$_ -match '^VCPKG_INSTALLED_DIR:PATH='} | Select-Object -First 1
+    if(!$sdkEntry){throw 'No existing media SDK in the AirPlay build cache'}
+    $installed=[IO.Path]::GetFullPath($sdkEntry.Split('=',2)[1])
+    if([IO.Path]::GetFileName($installed) -cne 'yanda-vcpkg-installed' -or !(Test-Path -LiteralPath (Join-Path $installed 'x64-windows/include/openssl/ssl.h'))){throw 'Missing expected project media SDK'}
+    if(!(Test-Path -LiteralPath (Join-Path $projectRoot 'build/airplay/_deps/imgui-pinned-src/imgui.cpp'))){throw 'Missing pinned offline ImGui tree'}
+    if((& git -C $vcpkgRoot rev-parse HEAD) -cne $baseline){throw 'Cached media SDK requires the pinned vcpkg revision'}
+    $offlineOptions=@('-DVCPKG_MANIFEST_INSTALL=OFF','-DFETCHCONTENT_FULLY_DISCONNECTED=ON')
+} else {
 if (!(Test-Path $vcpkgRoot\.git)) { & git clone --depth 1 https://github.com/microsoft/vcpkg.git $vcpkgRoot; if ($LASTEXITCODE) { throw 'vcpkg clone failed' } }
 $stamp=Join-Path $projectRoot 'toolchain/vcpkg-baseline.txt'
 $needsBootstrap=!(Test-Path (Join-Path $vcpkgRoot 'vcpkg.exe')) -or !(Test-Path $stamp) -or ((Get-Content $stamp -ErrorAction SilentlyContinue) -ne $baseline)
@@ -33,10 +44,13 @@ if (Test-Path -LiteralPath $downloadAlias) {
 $installed=Join-Path $env:TEMP 'yanda-vcpkg-installed'
 $buildTree=Join-Path $env:TEMP 'yanda-vcpkg-buildtrees'
 $packages=Join-Path $env:TEMP 'yanda-vcpkg-packages'
+$offlineOptions=@('-DVCPKG_MANIFEST_INSTALL=ON','-DFETCHCONTENT_FULLY_DISCONNECTED=OFF',"-DVCPKG_INSTALL_OPTIONS=--downloads-root=$downloadAlias;--x-buildtrees-root=$buildTree;--x-packages-root=$packages")
+}
 $gpuOption=if($GpuTests){'ON'}else{'OFF'}
-& $cmake -S $source -B build\airplay "-DCMAKE_TOOLCHAIN_FILE=$vcpkgRoot/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows "-DVCPKG_OVERLAY_PORTS=$projectRoot/native/media-ports" "-DVCPKG_INSTALLED_DIR=$installed" "-DVCPKG_INSTALL_OPTIONS=--downloads-root=$downloadAlias;--x-buildtrees-root=$buildTree;--x-packages-root=$packages" -DUSE_GSTREAMER_HLS=OFF -DBUILD_NETWORK_TESTS=ON "-DBUILD_GPU_TESTS=$gpuOption" -G 'Visual Studio 17 2022' -A x64
+& $cmake -S $source -B build\airplay "-DCMAKE_TOOLCHAIN_FILE=$vcpkgRoot/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows "-DVCPKG_OVERLAY_PORTS=$projectRoot/native/media-ports" "-DVCPKG_INSTALLED_DIR=$installed" @offlineOptions -DUSE_GSTREAMER_HLS=OFF -DBUILD_NETWORK_TESTS=ON "-DBUILD_GPU_TESTS=$gpuOption" -G 'Visual Studio 17 2022' -A x64
 if ($LASTEXITCODE) { throw 'AirPlay configure failed' }
-& $cmake --build build\airplay --config Release --parallel
+$buildTargets=if($SkipTests -and !$GpuTests){@('--target','airplay-windows')}else{@()}
+& $cmake --build build\airplay --config Release --parallel $Jobs @buildTargets -- /nodeReuse:false
 if ($LASTEXITCODE) { throw 'AirPlay build failed' }
 # pkg-config imported targets do not always populate TARGET_RUNTIME_DLLS.
 # Keep the complete pinned dependency DLL set next to the helper and tests.
@@ -52,6 +66,6 @@ Copy-Item build\airplay\Release\airplay-windows.exe $destination
 & "$PSScriptRoot/stage-sdk-dlls.ps1" -Sdk (Join-Path $installed 'x64-windows') -Destination $destination
 Copy-Item $source\LICENSE,$source\THIRD_PARTY_NOTICES.md -Destination $destination
 $licenses=Join-Path $destination 'licenses'; New-Item -ItemType Directory -Force $licenses | Out-Null
-if(Test-Path build\airplay\_deps\imgui-src\LICENSE.txt){Copy-Item build\airplay\_deps\imgui-src\LICENSE.txt (Join-Path $licenses 'imgui.txt')}
+if(Test-Path build\airplay\_deps\imgui-pinned-src\LICENSE.txt){Copy-Item build\airplay\_deps\imgui-pinned-src\LICENSE.txt (Join-Path $licenses 'imgui.txt')}
 Get-ChildItem "$installed\x64-windows\share" -Directory | ForEach-Object { $copyright=Join-Path $_.FullName 'copyright'; if (Test-Path $copyright) { Copy-Item $copyright (Join-Path $licenses ($_.Name+'.txt')) } }
 Write-Output "AirPlay bridge: $destination"

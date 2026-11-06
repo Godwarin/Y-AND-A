@@ -78,6 +78,7 @@ bool AudioReceiver::start(Config cfg, PauseState state) {
                            cfg_.aes_key.data(), cfg_.aes_iv.data()) != 1) {
         LOG_ERROR << "AudioReceiver: EVP_DecryptInit_ex(aes-128-cbc) failed";
         if (aes_ctx_) { EVP_CIPHER_CTX_free(aes_ctx_); aes_ctx_ = nullptr; }
+        cfg_.data_sock = INVALID_SOCK; // start(false) leaves ownership with the caller.
         return false;
     }
     EVP_CIPHER_CTX_set_padding(aes_ctx_, 0);

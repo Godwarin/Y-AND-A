@@ -5,17 +5,19 @@ param(
 )
 $ErrorActionPreference='Stop'
 $root=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
-if($Scope -ceq 'PrivateGitHub'){
- & python (Join-Path $PSScriptRoot 'verify-github-source.py')
- exit $LASTEXITCODE
-}
 . "$PSScriptRoot/release-layout.ps1"
 $layout=Get-YandaReleaseLayout
+if($Scope -ceq 'PrivateGitHub'){
+ $pythonArgs=@((Join-Path $PSScriptRoot 'verify-github-source.py'))
+ if($layout.ArtifactVersion -ceq '0.42a'){$pythonArgs+=@('--artifact-version',$layout.ArtifactVersion)}
+ & python @pythonArgs
+ exit $LASTEXITCODE
+}
+. "$PSScriptRoot/release-apk-binding.ps1"
 $version=$layout.ArtifactVersion
 if(!$Manifest){$Manifest=$layout.Manifest}
 # File checks only: never starts the app, a receiver, network probe or installer.
-& "$PSScriptRoot/verify-release-signature.ps1" -Manifest $Manifest -ExpectedPublisherFingerprint $ExpectedPublisherFingerprint | Out-Null
-$manifestData=Get-Content -Raw -LiteralPath $Manifest|ConvertFrom-Json
+$manifestData=& "$PSScriptRoot/verify-release-signature.ps1" -Manifest $Manifest -ExpectedPublisherFingerprint $ExpectedPublisherFingerprint -PassThru
 if($manifestData.version -cne $version){throw 'Manifest version differs from source package'}
 function Read-Evidence([string]$Name) {
  $path=Join-Path $root "docs/evidence/$Name"
@@ -27,6 +29,11 @@ $frozen=Read-Evidence 'release-components.json'
 $allowed=@('Y AND A.exe',$layout.InternalAndroidName,'runtime/android-yanda/yanda-android.exe','runtime/airplay-yanda/airplay-windows.exe')
 if(!$frozen -or $frozen.version -cne $layout.ProductVersion -or $frozen.files.Count -ne 4){throw 'Missing exact component freeze'}
 $windowsArchive=$manifestData.files|Where-Object {$_.name -ceq "Y-AND-A-$version-win64.zip"}
+$standaloneApk=$manifestData.files|Where-Object {$_.name -ceq $layout.AndroidName}
+$frozenApk=$frozen.files|Where-Object {$_.path -ceq $layout.InternalAndroidName}
+Assert-YandaReleaseApkBinding -WindowsZip (Join-Path (Split-Path ([IO.Path]::GetFullPath($Manifest))) $windowsArchive.name) `
+    -InternalName $layout.InternalAndroidName -ApkSha256 $standaloneApk.sha256 `
+    -VerifiedApkSha256 $frozenApk.sha256 -WindowsSha256 $windowsArchive.sha256
 $relocation=Read-Evidence 'artifact-relocation.json'
 if(!$relocation -or $relocation.label -cne $version -or $relocation.oldOwnerTestedZipSha256 -cne $frozen.windowsZipSha256){throw 'Missing link to tested package'}
 if($windowsArchive.name -cne [IO.Path]::GetFileName($layout.WindowsZip)){throw 'Missing signed Windows ZIP'}
@@ -78,7 +85,7 @@ foreach($p in $paths.Keys){if($phones.componentHashes.$p -cne $fingerprints.($pa
 $owner=Read-Evidence 'owner-release-confirmations.json'
 $sourceSnapshotCurrent=$false
 $sourceSnapshotDifferentFiles=0
-$snapshotFile=Join-Path $root 'publish/github-manifest.json'
+$snapshotFile=$layout.SourceSnapshotManifest
 if(Test-Path -LiteralPath $snapshotFile -PathType Leaf){
  if((Get-Item -LiteralPath $snapshotFile).Length -gt 2097152){throw 'Source snapshot manifest too large'}
  $snapshot=Get-Content -Raw -LiteralPath $snapshotFile|ConvertFrom-Json
@@ -105,6 +112,7 @@ foreach($key in 'externalNetworkDisabled','isolatedLoopback','emptyAllowlistEnvi
 }
 $gates=[ordered]@{
  signedFilesAndFrozenComponents=$true
+ securityRemediationPackaged=(!$layout.BlockedForPublication)
  sourceArchiveContainsPreparedSnapshot=[bool]$sourceSnapshotCurrent
  ownerDeviceVideoAndAudio=[bool]$phonePass
  isolatedSecurityValidation=[bool]$isolatedPass

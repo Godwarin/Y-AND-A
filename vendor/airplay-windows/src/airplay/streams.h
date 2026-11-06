@@ -105,6 +105,8 @@ private:
     // AirPlay 2 path state.
     socket_t    event_sock_     = INVALID_SOCK;
     socket_t    ap2_timing_sock = INVALID_SOCK;
+    uint16_t    ap2_event_port_ = 0;
+    uint16_t    ap2_timing_port_ = 0;
     std::vector<StreamChannel>                    channels_;   // audio streams (UDP)
     std::unique_ptr<MirrorListener>               mirror_;     // video stream (TCP)
     std::unique_ptr<NtpClient>                    ntp_;

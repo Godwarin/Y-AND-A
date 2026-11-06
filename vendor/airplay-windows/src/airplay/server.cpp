@@ -57,7 +57,7 @@ void Server::handle_client(ap::net::ClientSocket client) {
         LOG_WARN << "Could not configure control TCP keepalive: "
                  << ap::net::last_error_string();
     }
-    RequestReader reader(client.cancelled);
+    RequestReader reader(client.cancelled, client.accepted_at + std::chrono::seconds(45));
     Request req;
 
     // Peer is formatted by tcp_server as "ip:port" for v4 and v4-mapped,
@@ -99,11 +99,15 @@ void Server::handle_client(ap::net::ClientSocket client) {
                      << " Active-Remote-present=" << !req.header("active-remote").empty();
         }
         Response res = dispatch(ctx_, session, req);
-        reader.authorized(session.pair_verify && session.pair_verify->state()==ap::crypto::PairVerifySession::State::Verified &&
-            Approval::instance().allowed(Approval::fingerprint(session.pair_verify->client_key()),session.remote_ip));
-        remote->update(req.header("dacp-id"), req.header("active-remote"),
-                       session.streams && session.streams->audio_only(),
-                       session.streams ? session.streams->session_id() : std::string{});
+        const bool authorized = session.pair_verify && session.pair_verify->state()==ap::crypto::PairVerifySession::State::Verified &&
+            Approval::instance().allowed(Approval::fingerprint(session.pair_verify->client_key()),session.remote_ip);
+        reader.authorized(authorized);
+        client.authorized->store(authorized);
+        if (authorized) {
+            remote->update(req.header("dacp-id"), req.header("active-remote"),
+                           session.streams && session.streams->audio_only(),
+                           session.streams ? session.streams->session_id() : std::string{});
+        }
         if (client.cancelled->load()) break;
         if (res.silent) continue;
         std::string wire = res.serialize();

@@ -3,6 +3,7 @@
 
 #include <cstring>
 #include <chrono>
+#include <algorithm>
 
 namespace ap::net {
 
@@ -120,7 +121,7 @@ void TcpServer::accept_loop() {
         }
         if(!private_address(peer_address(peer))){close_socket(fd);continue;}
         auto now=std::chrono::steady_clock::now();if(now-rateStart>=std::chrono::seconds(1)){rateStart=now;accepts=0;}
-        if(++accepts>32){close_socket(fd);continue;}
+        if(accepts>=32){close_socket(fd);continue;}
 
         // Format the peer as a human-readable "ip:port". For v4-mapped
         // v6 addresses (::ffff:A.B.C.D), strip the prefix so iOS clients
@@ -157,6 +158,7 @@ void TcpServer::accept_loop() {
             reinterpret_cast<const char*>(&send_timeout), sizeof(send_timeout));
         ClientSocket client;
         client.fd   = fd;
+        client.accepted_at = now;
         client.peer = peer_is_v6
             ? "[" + std::string(ip) + "]:" + std::to_string(peer_port)
             : std::string(ip) + ":" + std::to_string(peer_port);
@@ -165,11 +167,15 @@ void TcpServer::accept_loop() {
         const socket_t track_fd = client.fd;
         {
             std::lock_guard<std::mutex> lock(clients_mtx_);
-            if (!running_ || disconnecting_ || active_clients_.size()>=16) {
+            const auto pending_from_peer = std::count_if(active_clients_.begin(), active_clients_.end(),
+                [&](const auto& entry) { return entry.second.address == ip && !entry.second.authorized->load(); });
+            if (!running_ || disconnecting_ || active_clients_.size()>=16 || pending_from_peer>=4) {
                 close_socket(track_fd);
                 continue;
             }
-            try { active_clients_.emplace(track_fd, client.cancelled); } catch(...) {close_socket(track_fd);continue;}
+            try { active_clients_.emplace(track_fd, ActiveClient{client.cancelled, client.authorized, ip}); }
+            catch(...) {close_socket(track_fd);continue;}
+            ++accepts;
         }
         // Only the accept thread touches this vector until stop() joins it.
         // Reap completed workers as connections arrive, instead of retaining
@@ -203,8 +209,8 @@ void TcpServer::accept_loop() {
 void TcpServer::close_all_clients(const std::function<void()>& on_drained) {
     std::unique_lock<std::mutex> lock(clients_mtx_);
     disconnecting_ = true;
-    for (const auto& [fd, cancelled] : active_clients_) {
-        cancelled->store(true);
+    for (const auto& [fd, client] : active_clients_) {
+        client.cancelled->store(true);
 #if defined(_WIN32)
         ::shutdown(fd, SD_BOTH);
 #else

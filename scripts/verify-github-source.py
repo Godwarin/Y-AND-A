@@ -4,6 +4,7 @@ Does not import project modules, execute the app, read signing secrets, or use
 the network. The JSON receipt is local and is not part of the source snapshot.
 """
 from pathlib import Path
+import argparse
 import hashlib
 import json
 import re
@@ -43,23 +44,31 @@ def digest(path):
         return hashlib.file_digest(stream, 'sha256').hexdigest()
 
 
-def inspect():
-    if SNAPSHOT.is_symlink() or SNAPSHOT.lstat().st_file_attributes & 0x400:
+def inspect(snapshot=SNAPSHOT, manifest_path=MANIFEST, artifact_version=None):
+    if snapshot.resolve() != snapshot.absolute() or snapshot.lstat().st_file_attributes & 0x400:
         raise RuntimeError('Snapshot root must be an ordinary directory')
-    manifest = json.loads(MANIFEST.read_text(encoding='utf-8'))
+    manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
     expected = {r['path']: r for r in manifest['files']}
     problems = []
-    if len(expected) != len(manifest['files']):
+    if len({name.casefold() for name in expected}) != len(manifest['files']):
         problems.append({'path': 'manifest', 'reason': 'duplicate_manifest_paths'})
+    fingerprint = hashlib.sha256('\n'.join(
+        f"{name} {expected[name]['sha256']}" for name in sorted(expected)
+    ).encode()).hexdigest()
+    if fingerprint != manifest['snapshotSha256']:
+        problems.append({'path': 'manifest', 'reason': 'snapshot_fingerprint_mismatch'})
+    if artifact_version and (manifest.get('artifactVersion') != artifact_version
+                             or manifest.get('output') != snapshot.relative_to(ROOT).as_posix()):
+        problems.append({'path': 'manifest', 'reason': 'artifact_version_or_path_mismatch'})
     seen = {}
     total = 0
-    for path in SNAPSHOT.rglob('*'):
-        name = path.relative_to(SNAPSHOT).as_posix()
+    for path in snapshot.rglob('*'):
+        name = path.relative_to(snapshot).as_posix()
         stat = path.lstat()
         if path.is_symlink() or stat.st_file_attributes & 0x400:
             problems.append({'path': name, 'reason': 'reparse_entry'})
             continue
-        if any(p.lower() in PRIVATE_DIRS for p in path.relative_to(SNAPSHOT).parts):
+        if any(p.lower() in PRIVATE_DIRS for p in path.relative_to(snapshot).parts):
             problems.append({'path': name, 'reason': 'private_directory'})
         if not path.is_file():
             continue
@@ -85,11 +94,11 @@ def inspect():
     for name in set(expected) - set(seen):
         problems.append({'path': name, 'reason': 'missing_snapshot_file'})
     for name in REQUIRED:
-        if not (SNAPSHOT / name).is_file():
+        if not (snapshot / name).is_file():
             problems.append({'path': name, 'reason': 'missing_source_or_notice'})
     links_checked = 0
-    maintained = [SNAPSHOT/'README.md', SNAPSHOT/'SECURITY.md']
-    maintained.extend((SNAPSHOT/'docs').glob('*.md'))
+    maintained = [snapshot/'README.md', snapshot/'SECURITY.md']
+    maintained.extend((snapshot/'docs').glob('*.md'))
     for path in maintained:
         source = path.read_text(encoding='utf-8-sig')
         for match in re.finditer(r'!?\[[^\]\r\n]*\]\(([^)\r\n]+)\)', source):
@@ -99,15 +108,15 @@ def inspect():
             target = unquote(target.split('#', 1)[0])
             resolved = (path.parent / target).resolve()
             links_checked += 1
-            if not resolved.is_relative_to(SNAPSHOT.resolve()) or not resolved.exists():
-                problems.append({'path': path.relative_to(SNAPSHOT).as_posix(),
+            if not resolved.is_relative_to(snapshot.resolve()) or not resolved.exists():
+                problems.append({'path': path.relative_to(snapshot).as_posix(),
                                  'reason': 'broken_local_link', 'target': target})
-    if digest(SNAPSHOT/'public/animation/forty-two.js') != '2496f79b8c416b1ff33d404a67d887b3460083f00e47c8b1e548669b2edc2b03':
+    if digest(snapshot/'public/animation/forty-two.js') != '2496f79b8c416b1ff33d404a67d887b3460083f00e47c8b1e548669b2edc2b03':
         problems.append({'path': 'public/animation/forty-two.js', 'reason': 'original_asset_changed'})
     return {'status': 'PASS_PRIVATE_SOURCE_PREPARATION' if not problems else 'NEEDS_REVIEW',
             'scope': 'Local source publication hygiene, integrity and documentation',
             'files': len(seen), 'bytes': total, 'localMarkdownLinksChecked': links_checked,
-            'snapshotSha256': manifest['snapshotSha256'], 'problems': problems,
+            'artifactVersion': artifact_version, 'snapshotSha256': fingerprint, 'problems': problems,
             'binarySecurityValidation': 'NOT_ASSESSED_BY_SOURCE_CHECK', 'productTestsRun': 0,
             'vmStarted': False, 'publicationPerformed': False,
             'limitations': ['Pattern scan cannot prove absence of every possible secret',
@@ -115,7 +124,17 @@ def inspect():
 
 
 if __name__ == '__main__':
-    result = inspect()
-    REPORT.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding='utf-8')
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--artifact-version', choices=('0.42a',))
+    version = parser.parse_args().artifact_version
+    if version:
+        snapshot = ROOT/'publish'/f'github-{version}'
+        manifest_path = snapshot.with_name(snapshot.name + '-manifest.json')
+        report = snapshot.with_name(snapshot.name + '-security-review.json')
+        result = inspect(snapshot, manifest_path, version)
+    else:
+        report = REPORT
+        result = inspect()
+    report.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding='utf-8')
     print(json.dumps(result, ensure_ascii=False, indent=2))
     sys.exit(0 if not result['problems'] else 2)

@@ -1,6 +1,9 @@
 #ifndef PLAYFAIR_H
 #define PLAYFAIR_H
 
-void playfair_decrypt(unsigned char* message3, unsigned char* cipherText, unsigned char* keyOut);
+#include <stddef.h>
+
+int playfair_decrypt(unsigned char* message3, size_t messageLen,
+                     unsigned char* cipherText, size_t cipherLen, unsigned char* keyOut);
 
 #endif

@@ -3,7 +3,9 @@ $ErrorActionPreference='Stop'
 . "$PSScriptRoot/release-signature-crypto.ps1"
 $projectRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 . "$PSScriptRoot/release-layout.ps1"
+. "$PSScriptRoot/release-apk-binding.ps1"
 $layout=Get-YandaReleaseLayout
+if(!$PrepareKey -and $layout.BlockedForPublication){throw 'This frozen release predates security fixes. Build and verify a new artifact version before signing.'}
 $version=$layout.ArtifactVersion
 $releaseRoot=$layout.ReleaseDirectory
 & "$PSScriptRoot/protect-android-signing.ps1"
@@ -29,6 +31,12 @@ try {
   $path=Join-Path $releaseRoot $name;$file=Get-Item -LiteralPath $path
   [ordered]@{name=$name;bytes=$file.Length;sha256=(Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant()}
  }
+ $apkEvidence=Get-Content -Raw -LiteralPath (Join-Path $projectRoot 'docs/evidence/android-apk.json')|ConvertFrom-Json
+ if($apkEvidence.status -cne 'PASS'){throw 'APK verification evidence is missing or failed'}
+ $standalone=$files|Where-Object {$_.name -ceq $layout.AndroidName}
+ $windows=$files|Where-Object {$_.name -ceq [IO.Path]::GetFileName($layout.WindowsZip)}
+ Assert-YandaReleaseApkBinding -WindowsZip $layout.WindowsZip -InternalName $layout.InternalAndroidName `
+  -ApkSha256 $standalone.sha256 -VerifiedApkSha256 $apkEvidence.apkSha256 -WindowsSha256 $windows.sha256
  $validationStatus='BETA_SECURITY_VALIDATION_PENDING'
  $validation=[ordered]@{scope='Frozen native receiver regression suites; see source documentation';status='NEEDS_VALIDATION'}
  $proofPath=Join-Path $projectRoot 'docs/evidence/isolated-security-validation.json'
@@ -51,9 +59,10 @@ try {
  }
  $manifest=[ordered]@{format='YANDA-release-v1';version=$version;productVersion=$layout.ProductVersion;algorithm='ECDSA-P256-SHA256-P1363';publisherFingerprint=$fingerprint;status=$validationStatus;securityValidation=$validation;distribution='GITHUB_RELEASE_PREPARATION';widePublicReleaseApproved=$false;files=@($files)}
  $manifestPath=Join-Path $releaseRoot "Y-AND-A-$version-MANIFEST.json"
- [IO.File]::WriteAllText($manifestPath,($manifest | ConvertTo-Json -Depth 5))
- $data=[IO.File]::ReadAllBytes($manifestPath);$signature=[YandaReleaseSignature]::Sign($key,$data)
+ $data=[Text.Encoding]::UTF8.GetBytes(($manifest | ConvertTo-Json -Depth 5))
+ $signature=[YandaReleaseSignature]::Sign($key,$data)
  if(![YandaReleaseSignature]::Verify($public,$data,$signature)){throw 'Release signature verification failed'}
+ [IO.File]::WriteAllBytes($manifestPath,$data)
  [IO.File]::WriteAllText(($manifestPath+'.sig'),[Convert]::ToBase64String($signature))
  Copy-Item -LiteralPath $publicPath -Destination (Join-Path $releaseRoot 'YANDA-PUBLISHER-KEY.txt') -Force
  $checksums=@($files | ForEach-Object {"$($_.sha256)  $($_.name)"})

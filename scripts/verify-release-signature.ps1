@@ -1,4 +1,4 @@
-param([Parameter(Mandatory)][string]$Manifest,[Parameter(Mandatory)][ValidatePattern('^[a-fA-F0-9]{64}$')][string]$ExpectedPublisherFingerprint)
+param([Parameter(Mandatory)][string]$Manifest,[Parameter(Mandatory)][ValidatePattern('^[a-fA-F0-9]{64}$')][string]$ExpectedPublisherFingerprint,[switch]$PassThru)
 $ErrorActionPreference='Stop'
 . "$PSScriptRoot/release-signature-crypto.ps1"
 $path=[IO.Path]::GetFullPath($Manifest);$folder=Split-Path $path
@@ -10,7 +10,7 @@ $data=[IO.File]::ReadAllBytes($path);$signature=[Convert]::FromBase64String([IO.
 if(![YandaReleaseSignature]::Verify($public,$data,$signature)){throw 'Invalid signature. Do not run this download.'}
 $manifestData=[Text.Encoding]::UTF8.GetString($data) | ConvertFrom-Json
 if($manifestData.format -cne 'YANDA-release-v1' -or $manifestData.algorithm -cne 'ECDSA-P256-SHA256-P1363' -or $manifestData.files.Count -ne 3){throw 'Unsupported manifest'}
-if($manifestData.version -cnotmatch '^(?:BETA-[0-9]+\.[0-9]+|[0-9]+\.[0-9]+\.[0-9]+(?:-[a-zA-Z0-9.]+)?)$' -or $manifestData.publisherFingerprint -ine $fingerprint){throw 'Invalid manifest identity/version'}
+if($manifestData.version -cnotmatch '^(?:BETA-[0-9]+\.[0-9]+|[0-9]+\.[0-9]+[a-z]|[0-9]+\.[0-9]+\.[0-9]+(?:-[a-zA-Z0-9.]+)?)$' -or $manifestData.publisherFingerprint -ine $fingerprint){throw 'Invalid manifest identity/version'}
 $expectedNames=@("Y-AND-A-$($manifestData.version)-win64.zip","Y-AND-A-$($manifestData.version)-source.zip","Y-AND-A-$($manifestData.version)-android.apk")
 $seen=@{}
 foreach($file in $manifestData.files){
@@ -19,4 +19,5 @@ foreach($file in $manifestData.files){
  $target=Join-Path $folder $file.name
  if((Get-Item -LiteralPath $target).Length -ne $file.bytes -or (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash -ine $file.sha256){throw "Artifact changed: $($file.name)"}
 }
+if ($PassThru) { return $manifestData }
 Write-Output 'PASS: publisher fingerprint, release signature and all three artifact hashes match.'

@@ -1,0 +1,626 @@
+{
+  "date": "2026-11-06",
+  "artifactVersion": "0.42a",
+  "productVersion": "0.4.0-rc.2",
+  "status": "NEEDS_VALIDATION",
+  "componentHashes": {
+    "apk": "2d0ca92110b2a7dee901e4de911ff96bf7c8f69d76e8b612008a3bcdaad4e357",
+    "exe": "03f4ab5b72b410cec12f4e83561f27785ca2b800e48bb8cd6ee0333b8b908f15",
+    "androidReceiver": "5ea373a9172f84a1ffb466c390ccc804a17e21d8fa222cc2e0299f4df4ce48a5",
+    "airplayReceiver": "4be828b9978e08232f3d9581527d4ad68d2cc37148d83fbdca5a90f421cfe8d6"
+  },
+  "plannedSecurityChecks": 16,
+  "plannedAndroidProtocolChecks": 13,
+  "targetExecuted": false,
+  "desktopExeExecuted": false,
+  "apkExecuted": false,
+  "physicalPhoneTested": false,
+  "networkAdaptersDisabled": 8,
+  "toolsManifestFiles": 862,
+  "securityScriptSha256": "c8d62779943575d1606cfdbc31a5af0be0c2702d39f3ab6dbb62600fa44a54fb",
+  "protocolScriptSha256": "855aa83f0ed64b34dda55cc1b770071a580137e142ac88de9da9d6ee2f6d199e",
+  "sandboxAttempt": [
+    {
+      "status": "NEEDS_VALIDATION",
+      "attemptId": "recheck042a01",
+      "artifactVersion": "0.42a",
+      "availableMemoryMiB": 5918.0,
+      "controlIsoSha256": "a283970eb3173c7c75fa3f326c9479d872f6f18db03d2f1fd6eee306ccca4daf",
+      "toolsIsoSha256": "4532e1ba5e2c41376e7151171d17da7d493fc1a51ee7981767381362d30f32ab",
+      "guestResult": {
+        "securityChecks": 0,
+        "targetExitCode": 0,
+        "allChildrenTerminated": false,
+        "failureCode": "CREATE_LPAC_2",
+        "controls": {
+          "allChildProcessesTerminated": false,
+          "osResourceLimits": false,
+          "emptyAllowlistEnvironment": false,
+          "scratchOnlyWrites": false,
+          "readOnlyTargetAndToolchain": false,
+          "externalNetworkDisabled": true,
+          "isolatedLoopback": false
+        },
+        "status": "NEEDS_VALIDATION",
+        "protocolChecks": 0
+      },
+      "guestRollbackVerified": true,
+      "readerStopped": true,
+      "failure": "Guest result: NEEDS_VALIDATION CREATE_LPAC_2"
+    },
+    {
+      "status": "NEEDS_VALIDATION",
+      "attemptId": "recheck042a02",
+      "artifactVersion": "0.42a",
+      "availableMemoryMiB": 6355.0,
+      "controlIsoSha256": "90c6f1b78765afe57d8d06a01e39e8a358d57483015e0bbda474363f75b51b20",
+      "toolsIsoSha256": "4532e1ba5e2c41376e7151171d17da7d493fc1a51ee7981767381362d30f32ab",
+      "guestResult": {
+        "securityChecks": 0,
+        "targetExitCode": 0,
+        "allChildrenTerminated": false,
+        "failureCode": "CREATE_LPAC_2",
+        "controls": {
+          "allChildProcessesTerminated": false,
+          "osResourceLimits": false,
+          "emptyAllowlistEnvironment": false,
+          "scratchOnlyWrites": false,
+          "readOnlyTargetAndToolchain": false,
+          "externalNetworkDisabled": true,
+          "isolatedLoopback": false
+        },
+        "status": "NEEDS_VALIDATION",
+        "protocolChecks": 0
+      },
+      "guestRollbackVerified": true,
+      "readerStopped": true,
+      "failure": "Guest result: NEEDS_VALIDATION CREATE_LPAC_2"
+    },
+    {
+      "status": "NEEDS_VALIDATION",
+      "attemptId": "recheck042a03",
+      "artifactVersion": "0.42a",
+      "availableMemoryMiB": 6345.0,
+      "controlIsoSha256": "10b039610d7bbc84921237fea29446ea1cb2a38d1659ea73f22c729d8511c688",
+      "toolsIsoSha256": "4532e1ba5e2c41376e7151171d17da7d493fc1a51ee7981767381362d30f32ab",
+      "guestResult": {
+        "securityChecks": 0,
+        "targetExitCode": 0,
+        "allChildrenTerminated": false,
+        "failureCode": "LPAC_FILE_0_USER_0_OS_2_PROFILE_1",
+        "controls": {
+          "allChildProcessesTerminated": false,
+          "osResourceLimits": false,
+          "emptyAllowlistEnvironment": false,
+          "scratchOnlyWrites": false,
+          "readOnlyTargetAndToolchain": false,
+          "externalNetworkDisabled": true,
+          "isolatedLoopback": false
+        },
+        "status": "NEEDS_VALIDATION",
+        "protocolChecks": 0
+      },
+      "guestRollbackVerified": true,
+      "readerStopped": true,
+      "failure": "Guest result: NEEDS_VALIDATION LPAC_FILE_0_USER_0_OS_2_PROFILE_1"
+    },
+    {
+      "status": "NEEDS_VALIDATION",
+      "attemptId": "recheck042a04",
+      "artifactVersion": "0.42a",
+      "availableMemoryMiB": 6509.0,
+      "controlIsoSha256": "92f57bb9aeb6661219ec59cef0df1d9f5a2f3e58afcd81a93afa600d91d8701d",
+      "toolsIsoSha256": "4532e1ba5e2c41376e7151171d17da7d493fc1a51ee7981767381362d30f32ab",
+      "guestResult": {
+        "securityChecks": 0,
+        "targetExitCode": 0,
+        "allChildrenTerminated": false,
+        "failureCode": "LPAC_STATION_2_SCRATCH_2_DEFAULT_2_BOTH_2",
+        "controls": {
+          "allChildProcessesTerminated": false,
+          "osResourceLimits": false,
+          "emptyAllowlistEnvironment": false,
+          "scratchOnlyWrites": false,
+          "readOnlyTargetAndToolchain": false,
+          "externalNetworkDisabled": true,
+          "isolatedLoopback": false
+        },
+        "status": "NEEDS_VALIDATION",
+        "protocolChecks": 0
+      },
+      "guestRollbackVerified": true,
+      "readerStopped": true,
+      "failure": "Guest result: NEEDS_VALIDATION LPAC_STATION_2_SCRATCH_2_DEFAULT_2_BOTH_2"
+    },
+    {
+      "status": "NEEDS_VALIDATION",
+      "attemptId": "recheck042a05",
+      "artifactVersion": "0.42a",
+      "availableMemoryMiB": 6792.0,
+      "controlIsoSha256": "0b91f27682cdc6433f4bb2bdf5d0f6b841ffd63cb78053a0f0b2f7154c2f8241",
+      "toolsIsoSha256": "4532e1ba5e2c41376e7151171d17da7d493fc1a51ee7981767381362d30f32ab",
+      "guestResult": {
+        "securityChecks": 0,
+        "targetExitCode": 0,
+        "allChildrenTerminated": false,
+        "failureCode": "LPAC_STATION_2_SCRATCH_2_DEFAULT_2_BOTH_2",
+        "controls": {
+          "allChildProcessesTerminated": false,
+          "osResourceLimits": false,
+          "emptyAllowlistEnvironment": false,
+          "scratchOnlyWrites": false,
+          "readOnlyTargetAndToolchain": false,
+          "externalNetworkDisabled": true,
+          "isolatedLoopback": false
+        },
+        "status": "NEEDS_VALIDATION",
+        "protocolChecks": 0
+      },
+      "guestRollbackVerified": true,
+      "readerStopped": true,
+      "failure": "Guest result: NEEDS_VALIDATION LPAC_STATION_2_SCRATCH_2_DEFAULT_2_BOTH_2",
+      "freshBootConfirmed": true
+    },
+    {
+      "status": "NEEDS_VALIDATION",
+      "attemptId": "recheck042a06",
+      "artifactVersion": "0.42a",
+      "availableMemoryMiB": 6995.0,
+      "controlIsoSha256": "0ea829fb378b77e258ab695815f55bf5725afabddcb705454cbce9da41a6acbc",
+      "toolsIsoSha256": "4532e1ba5e2c41376e7151171d17da7d493fc1a51ee7981767381362d30f32ab",
+      "guestResult": {
+        "securityChecks": 0,
+        "targetExitCode": 0,
+        "allChildrenTerminated": false,
+        "failureCode": "LPAC_STATION_2_SCRATCH_2_DEFAULT_2_BOTH_2",
+        "controls": {
+          "allChildProcessesTerminated": false,
+          "osResourceLimits": false,
+          "emptyAllowlistEnvironment": false,
+          "scratchOnlyWrites": false,
+          "readOnlyTargetAndToolchain": false,
+          "externalNetworkDisabled": true,
+          "isolatedLoopback": false
+        },
+        "status": "NEEDS_VALIDATION",
+        "protocolChecks": 0
+      },
+      "guestRollbackVerified": true,
+      "readerStopped": true,
+      "failure": "Guest result: NEEDS_VALIDATION LPAC_STATION_2_SCRATCH_2_DEFAULT_2_BOTH_2"
+    },
+    {
+      "status": "NEEDS_VALIDATION",
+      "attemptId": "recheck042a07",
+      "artifactVersion": "0.42a",
+      "availableMemoryMiB": 6874.0,
+      "controlIsoSha256": "d9586afb2e9ef0ce523dfd3833a5a55c69ffabdee533e76333829a1fcd633012",
+      "toolsIsoSha256": "4532e1ba5e2c41376e7151171d17da7d493fc1a51ee7981767381362d30f32ab",
+      "guestResult": {
+        "securityChecks": 0,
+        "targetExitCode": 0,
+        "allChildrenTerminated": false,
+        "failureCode": "LPAC_STATION_2_SCRATCH_2_DEFAULT_2_BOTH_2",
+        "controls": {
+          "allChildProcessesTerminated": false,
+          "osResourceLimits": false,
+          "emptyAllowlistEnvironment": false,
+          "scratchOnlyWrites": false,
+          "readOnlyTargetAndToolchain": false,
+          "externalNetworkDisabled": true,
+          "isolatedLoopback": false
+        },
+        "status": "NEEDS_VALIDATION",
+        "protocolChecks": 0
+      },
+      "guestRollbackVerified": true,
+      "readerStopped": true,
+      "failure": "Guest result: NEEDS_VALIDATION LPAC_STATION_2_SCRATCH_2_DEFAULT_2_BOTH_2",
+      "suspendedProcessCreatedBeforeProfileDeny": false
+    },
+    {
+      "status": "NEEDS_VALIDATION",
+      "attemptId": "recheck042a08",
+      "artifactVersion": "0.42a",
+      "availableMemoryMiB": 6956.0,
+      "controlIsoSha256": "7fc7f8e7a25b9c8181d3e3890f70166e01f7d3eb32e85583fb1a4a66b4a8c719",
+      "toolsIsoSha256": "4532e1ba5e2c41376e7151171d17da7d493fc1a51ee7981767381362d30f32ab",
+      "guestResult": {
+        "securityChecks": 0,
+        "targetExitCode": 0,
+        "allChildrenTerminated": false,
+        "failureCode": "LPAC_CREATE_2_APP_2_RESTRICTED_0",
+        "controls": {
+          "allChildProcessesTerminated": false,
+          "osResourceLimits": false,
+          "emptyAllowlistEnvironment": false,
+          "scratchOnlyWrites": false,
+          "readOnlyTargetAndToolchain": false,
+          "externalNetworkDisabled": true,
+          "isolatedLoopback": false
+        },
+        "status": "NEEDS_VALIDATION",
+        "protocolChecks": 0
+      },
+      "guestRollbackVerified": true,
+      "readerStopped": true,
+      "failure": "Guest result: NEEDS_VALIDATION LPAC_CREATE_2_APP_2_RESTRICTED_0",
+      "suspendedProcessCreation": {
+        "restrictedTokenWin32": 0,
+        "appContainerWin32": 2,
+        "lpacWin32": 2,
+        "comparisonResumed": false
+      }
+    },
+    {
+      "status": "NEEDS_VALIDATION",
+      "attemptId": "recheck042a09",
+      "artifactVersion": "0.42a",
+      "availableMemoryMiB": 4911.0,
+      "controlIsoSha256": "64f45cbe6ed857dd493654b8a042bd02fc00a79dab87cf2c9df1ed619733c91f",
+      "toolsIsoSha256": "4532e1ba5e2c41376e7151171d17da7d493fc1a51ee7981767381362d30f32ab",
+      "guestResult": null,
+      "guestRollbackVerified": true,
+      "readerStopped": true,
+      "failure": "Host RAM pressure stopped isolated testing",
+      "vmStarted": true,
+      "traceCaptured": false,
+      "physicalHostMemoryStopMiB": 768
+    },
+    {
+      "status": "NEEDS_VALIDATION",
+      "attemptId": "recheck042a09Retry",
+      "artifactVersion": "0.42a",
+      "availableMemoryMiB": 5852.0,
+      "controlIsoSha256": "64f45cbe6ed857dd493654b8a042bd02fc00a79dab87cf2c9df1ed619733c91f",
+      "toolsIsoSha256": "4532e1ba5e2c41376e7151171d17da7d493fc1a51ee7981767381362d30f32ab",
+      "guestResult": {
+        "securityChecks": 0,
+        "targetExitCode": 0,
+        "allChildrenTerminated": false,
+        "failureCode": "LPAC_CREATE_2_APP_2_EMPTY_2_RESTRICTED_0",
+        "controls": {
+          "allChildProcessesTerminated": false,
+          "osResourceLimits": false,
+          "emptyAllowlistEnvironment": false,
+          "scratchOnlyWrites": false,
+          "readOnlyTargetAndToolchain": false,
+          "externalNetworkDisabled": true,
+          "isolatedLoopback": false
+        },
+        "status": "NEEDS_VALIDATION",
+        "protocolChecks": 0
+      },
+      "guestRollbackVerified": true,
+      "readerStopped": true,
+      "failure": "Guest result: NEEDS_VALIDATION LPAC_CREATE_2_APP_2_EMPTY_2_RESTRICTED_0",
+      "boundedTraceSummary": [
+        "YANDA_TRACE_UNAVAILABLE"
+      ]
+    },
+    {
+      "status": "NEEDS_VALIDATION",
+      "attemptId": "recheck042a10",
+      "artifactVersion": "0.42a",
+      "availableMemoryMiB": 6505.0,
+      "controlIsoSha256": "c2aabea5ab30a2433f9f9bf51c744c65fe647ef99235f11e344fe4be62e77b76",
+      "toolsIsoSha256": "4532e1ba5e2c41376e7151171d17da7d493fc1a51ee7981767381362d30f32ab",
+      "guestResult": {
+        "securityChecks": 0,
+        "targetExitCode": 0,
+        "allChildrenTerminated": false,
+        "failureCode": "LPAC_2_APP_2_EMPTY_2_RESTRICTED_0_BASE_2",
+        "controls": {
+          "allChildProcessesTerminated": false,
+          "osResourceLimits": false,
+          "emptyAllowlistEnvironment": false,
+          "scratchOnlyWrites": false,
+          "readOnlyTargetAndToolchain": false,
+          "externalNetworkDisabled": true,
+          "isolatedLoopback": false
+        },
+        "status": "NEEDS_VALIDATION",
+        "protocolChecks": 0
+      },
+      "guestRollbackVerified": true,
+      "readerStopped": true,
+      "failure": "Guest result: NEEDS_VALIDATION LPAC_2_APP_2_EMPTY_2_RESTRICTED_0_BASE_2",
+      "boundedTraceSummary": [
+        "YANDA_TRACE_COUNTS 1221 0",
+        "YANDA_TRACE_HIT FILE_CMD_00000000 3",
+        "YANDA_TRACE_HIT FILE_WORKDIR_00000000 1"
+      ]
+    },
+    {
+      "status": "NEEDS_VALIDATION",
+      "attemptId": "recheck042a11",
+      "artifactVersion": "0.42a",
+      "availableMemoryMiB": 6502.0,
+      "controlIsoSha256": "e931d5f00506fe84d14998694dc9af8bb70aa8e9cb749bec9fa637f5551fc815",
+      "toolsIsoSha256": "4532e1ba5e2c41376e7151171d17da7d493fc1a51ee7981767381362d30f32ab",
+      "guestResult": {
+        "securityChecks": 0,
+        "targetExitCode": 0,
+        "allChildrenTerminated": false,
+        "failureCode": "LPAC_2_APP_2_BASE_2_USER_5",
+        "controls": {
+          "allChildProcessesTerminated": false,
+          "osResourceLimits": false,
+          "emptyAllowlistEnvironment": false,
+          "scratchOnlyWrites": false,
+          "readOnlyTargetAndToolchain": false,
+          "externalNetworkDisabled": true,
+          "isolatedLoopback": false
+        },
+        "status": "NEEDS_VALIDATION",
+        "protocolChecks": 0
+      },
+      "guestRollbackVerified": true,
+      "readerStopped": true,
+      "failure": "Guest result: NEEDS_VALIDATION LPAC_2_APP_2_BASE_2_USER_5",
+      "boundedTraceSummary": [
+        "YANDA_TRACE_COUNTS 0 1653",
+        "YANDA_TRACE_HIT REG_APPMODEL_00000000 3",
+        "YANDA_TRACE_HIT REG_APPMODEL_C0000034 4",
+        "YANDA_TRACE_HIT REG_MAPPING_C0000034 3",
+        "YANDA_TRACE_HIT REG_PROFILE_00000000 2"
+      ]
+    },
+    {
+      "status": "NEEDS_VALIDATION",
+      "attemptId": "recheck042a12",
+      "artifactVersion": "0.42a",
+      "availableMemoryMiB": 6737.0,
+      "controlIsoSha256": "8d5e025887fd4304269708e65f3f9b30763e40e2919ab19f299d28a2c9957ff9",
+      "toolsIsoSha256": "4532e1ba5e2c41376e7151171d17da7d493fc1a51ee7981767381362d30f32ab",
+      "guestResult": {
+        "securityChecks": 0,
+        "targetExitCode": 0,
+        "allChildrenTerminated": false,
+        "failureCode": "LPAC_2_APP_2_BASE_2_USER_5",
+        "controls": {
+          "allChildProcessesTerminated": false,
+          "osResourceLimits": false,
+          "emptyAllowlistEnvironment": false,
+          "scratchOnlyWrites": false,
+          "readOnlyTargetAndToolchain": false,
+          "externalNetworkDisabled": true,
+          "isolatedLoopback": false
+        },
+        "status": "NEEDS_VALIDATION",
+        "protocolChecks": 0
+      },
+      "guestRollbackVerified": true,
+      "readerStopped": true,
+      "failure": "Guest result: NEEDS_VALIDATION LPAC_2_APP_2_BASE_2_USER_5",
+      "boundedTraceSummary": [
+        "YANDA_TRACE_MAPPING 1 1 0 0",
+        "YANDA_TRACE_COUNTS 0 1663",
+        "YANDA_TRACE_HIT REG_APPMODEL_00000000 3",
+        "YANDA_TRACE_HIT REG_APPMODEL_C0000034 4",
+        "YANDA_TRACE_HIT REG_MAPPING_OTHER_C0000034 3"
+      ]
+    },
+    {
+      "status": "NEEDS_VALIDATION",
+      "attemptId": "recheck042a14",
+      "artifactVersion": "0.42a",
+      "availableMemoryMiB": 5347.0,
+      "controlIsoSha256": "90db0b6f45d9031bf3eddd89f4efc3cef2bb5d5fd882e6ea7fbcd04f3187a5c1",
+      "toolsIsoSha256": "4532e1ba5e2c41376e7151171d17da7d493fc1a51ee7981767381362d30f32ab",
+      "guestResult": null,
+      "guestRollbackVerified": true,
+      "readerStopped": true,
+      "failure": "Host RAM pressure stopped isolated testing",
+      "traceCaptured": false,
+      "vmStarted": true,
+      "physicalHostMemoryStopMiB": 768
+    },
+    {
+      "status": "NEEDS_VALIDATION",
+      "attemptId": "recheck042a14Retry",
+      "artifactVersion": "0.42a",
+      "availableMemoryMiB": 8257.0,
+      "controlIsoSha256": "90db0b6f45d9031bf3eddd89f4efc3cef2bb5d5fd882e6ea7fbcd04f3187a5c1",
+      "toolsIsoSha256": "4532e1ba5e2c41376e7151171d17da7d493fc1a51ee7981767381362d30f32ab",
+      "guestResult": {
+        "securityChecks": 0,
+        "targetExitCode": 0,
+        "allChildrenTerminated": false,
+        "failureCode": "LPAC_IMPERSONATED_5_APP_2_BASE_2",
+        "controls": {
+          "allChildProcessesTerminated": false,
+          "osResourceLimits": false,
+          "emptyAllowlistEnvironment": false,
+          "scratchOnlyWrites": false,
+          "readOnlyTargetAndToolchain": false,
+          "externalNetworkDisabled": true,
+          "isolatedLoopback": false
+        },
+        "status": "NEEDS_VALIDATION",
+        "protocolChecks": 0
+      },
+      "guestRollbackVerified": true,
+      "readerStopped": true,
+      "failure": "Guest result: NEEDS_VALIDATION LPAC_IMPERSONATED_5_APP_2_BASE_2",
+      "boundedTraceSummary": [
+        "YANDA_TRACE_MAPPING 1 1 0 0",
+        "YANDA_TRACE_COUNTS 0 513",
+        "YANDA_TRACE_HIT REG_APPMODEL_00000000 2",
+        "YANDA_TRACE_HIT REG_APPMODEL_C0000034 2",
+        "YANDA_TRACE_HIT REG_MAPPING_OTHER_C0000034 2"
+      ],
+      "hostAvailableAfterProbeMiB": 3546
+    },
+    {
+      "status": "NEEDS_VALIDATION",
+      "attemptId": "recheck042a13",
+      "artifactVersion": "0.42a",
+      "availableMemoryMiB": 8382.0,
+      "controlIsoSha256": "8d39c5ce9b7ab8d4edf7a5f7483be56eef5078b0f83cfdec26bec621b7cb96d9",
+      "toolsIsoSha256": "4532e1ba5e2c41376e7151171d17da7d493fc1a51ee7981767381362d30f32ab",
+      "guestResult": {
+        "securityChecks": 0,
+        "targetExitCode": 0,
+        "allChildrenTerminated": false,
+        "failureCode": "LPAC_2_APP_2_BASE_2_USER_0",
+        "controls": {
+          "allChildProcessesTerminated": false,
+          "osResourceLimits": false,
+          "emptyAllowlistEnvironment": false,
+          "scratchOnlyWrites": false,
+          "readOnlyTargetAndToolchain": false,
+          "externalNetworkDisabled": true,
+          "isolatedLoopback": false
+        },
+        "status": "NEEDS_VALIDATION",
+        "protocolChecks": 0
+      },
+      "guestRollbackVerified": true,
+      "readerStopped": true,
+      "failure": "Guest result: NEEDS_VALIDATION LPAC_2_APP_2_BASE_2_USER_0",
+      "boundedTraceSummary": [
+        "YANDA_TRACE_MAPPING 1 1 0 0",
+        "YANDA_TRACE_COUNTS 0 1744",
+        "YANDA_TRACE_HIT REG_APPMODEL_00000000 3",
+        "YANDA_TRACE_HIT REG_APPMODEL_C0000034 4",
+        "YANDA_TRACE_HIT REG_MAPPING_FIXTURE_00000000 1",
+        "YANDA_TRACE_HIT REG_MAPPING_OTHER_C0000034 3"
+      ],
+      "actualFixtureConsoleLogonVerified": true,
+      "suspendedOrdinaryAppContainerCreatedFromFixture": true,
+      "productExecuted": false
+    },
+    {
+      "status": "NEEDS_VALIDATION",
+      "attemptId": "recheck042a16",
+      "artifactVersion": "0.42a",
+      "availableMemoryMiB": 8685.0,
+      "controlIsoSha256": "3cf347ef50253496ff8f7550a9d1e553481beb367bbe2d4e8f78056ccd17934f",
+      "toolsIsoSha256": "4532e1ba5e2c41376e7151171d17da7d493fc1a51ee7981767381362d30f32ab",
+      "guestResult": {
+        "securityChecks": 0,
+        "targetExitCode": 0,
+        "allChildrenTerminated": false,
+        "failureCode": "DUMMY_CMD_30013",
+        "controls": {
+          "allChildProcessesTerminated": false,
+          "osResourceLimits": false,
+          "emptyAllowlistEnvironment": false,
+          "scratchOnlyWrites": false,
+          "readOnlyTargetAndToolchain": false,
+          "externalNetworkDisabled": true,
+          "isolatedLoopback": false
+        },
+        "status": "NEEDS_VALIDATION",
+        "protocolChecks": 0
+      },
+      "guestRollbackVerified": true,
+      "readerStopped": true,
+      "failure": "Guest result: NEEDS_VALIDATION DUMMY_CMD_30013",
+      "boundedTraceSummary": [
+        "YANDA_TRACE_MAPPING 1 1 0 0",
+        "YANDA_TRACE_COUNTS 0 2101",
+        "YANDA_TRACE_HIT REG_APPMODEL_C0000034 4",
+        "YANDA_TRACE_HIT REG_MAPPING_FIXTURE_00000000 1",
+        "YANDA_TRACE_HIT REG_PROFILE_00000000 19",
+        "YANDA_TRACE_HIT REG_SHELL_00000000 7"
+      ],
+      "appContainerChildCreatedSuspended": true,
+      "lpacTokenInformationVerified": false,
+      "appContainerChildResumed": false
+    },
+    {
+      "status": "NEEDS_VALIDATION",
+      "attemptId": "recheck042a17",
+      "artifactVersion": "0.42a",
+      "availableMemoryMiB": 8794.0,
+      "controlIsoSha256": "5c2ed9229f91d4610e83998c077743e60b18cc0579c93739fa9f0eea17a777a1",
+      "toolsIsoSha256": "4532e1ba5e2c41376e7151171d17da7d493fc1a51ee7981767381362d30f32ab",
+      "guestResult": null,
+      "guestRollbackVerified": true,
+      "readerStopped": true,
+      "failure": "Guest result not received within the bounded deadline",
+      "lastGuestStage": "FIXTURE_LOGON_VERIFIED",
+      "deadlineMinutes": 13,
+      "hostAvailableDuringGuestMiB": 4358,
+      "productExecutionObserved": false
+    }
+  ],
+  "publicationApproved": false,
+  "historicalReference": "docs/evidence/isolated-security-validation.json",
+  "guestAfterRollback": {
+    "state": "saved",
+    "snapshotUuid": "313d48f4-4026-4a99-8740-348809af3555",
+    "networkAdaptersDisabled": 8,
+    "originalOpticalMediaRestored": true,
+    "clipboardDisabled": true,
+    "dragAndDropDisabled": true,
+    "usbDisabled": true,
+    "vrdeDisabled": true,
+    "sharedFoldersPresent": false
+  },
+  "hostPreflight": {
+    "requiredMemoryMiB": 5888,
+    "guestMemoryMiB": 4096,
+    "hostReserveMiB": 1792,
+    "pauseThresholdMiB": 768
+  },
+  "staticArtifactInspection": {
+    "peDirectImports": {
+      "desktop": 24,
+      "androidReceiver": 20,
+      "airplayReceiver": 34,
+      "unresolved": 0
+    },
+    "apkManifest": {
+      "versionName": "0.42a",
+      "versionCode": 401,
+      "targetSdk": 36,
+      "permissionCount": 6,
+      "mainActivityLauncherOnly": true,
+      "scanActivityExported": false,
+      "streamServiceExported": false,
+      "backupAllowed": false,
+      "cleartextTrafficAllowed": false
+    },
+    "apkBytecode": {
+      "dexSha256": "2309a7671817657dcb8dc9facbe00e84531817e8a6d2f144824f326373460ca6",
+      "mainActivityReadsExternalIntent": false,
+      "mainActivityOverridesOnNewIntent": false,
+      "scannerActivityResultPresent": true,
+      "tlsVersion": "1.3",
+      "sha256FingerprintComparisonPresent": true,
+      "audioPlaybackCapturePresent": true,
+      "apkExecuted": false
+    }
+  },
+  "pendingLaunchTrace": {
+    "attemptId": "recheck042a09",
+    "status": "CAPTURED_STAND_NEEDS_VALIDATION",
+    "controlIsoSha256": "64f45cbe6ed857dd493654b8a042bd02fc00a79dab87cf2c9df1ed619733c91f",
+    "toolsIsoSha256": "4532e1ba5e2c41376e7151171d17da7d493fc1a51ee7981767381362d30f32ab",
+    "availableMemoryMiB": 5795,
+    "followupMemoryMiB": 5737,
+    "requiredMemoryMiB": 5888,
+    "vmStarted": true,
+    "traceCaptured": true,
+    "traceLimitMiB": 8,
+    "traceTimeLimitSeconds": 30,
+    "lastStartAvailableMemoryMiB": 4911.0,
+    "successfulTraceAttemptIds": [
+      "recheck042a10",
+      "recheck042a11",
+      "recheck042a12"
+    ]
+  },
+  "preparedFollowup": {
+    "attemptId": "recheck042a13",
+    "scope": "Probe from the actual synthetic console logon",
+    "controlIsoSha256": "8d39c5ce9b7ab8d4edf7a5f7483be56eef5078b0f83cfdec26bec621b7cb96d9",
+    "preflightMemoryMiB": 5888,
+    "guestStarted": true,
+    "status": "ORDINARY_APPCONTAINER_DUMMY_CREATED_LPAC_PENDING"
+  },
+  "lpacAccessProofStatus": "TIMED_OUT_BEFORE_RESULT"
+}

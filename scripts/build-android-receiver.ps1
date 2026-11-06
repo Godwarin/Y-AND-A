@@ -1,3 +1,4 @@
+param([ValidateRange(1,16)][int]$Jobs=1)
 $ErrorActionPreference='Stop'
 $projectRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 Set-Location -LiteralPath $projectRoot
@@ -11,7 +12,7 @@ if(!$entry){throw 'Сначала соберите media SDK: scripts/build-airp
 $mediaSdk=Join-Path ($entry.Split('=',2)[1]) 'x64-windows'
 & $cmake -S native/android-receiver -B build/android-receiver -G 'Visual Studio 17 2022' -A x64 "-DMEDIA_SDK=$mediaSdk"
 if($LASTEXITCODE){throw 'Receiver configure failed'}
-& $cmake --build build/android-receiver --config Release --parallel
+& $cmake --build build/android-receiver --config Release --parallel $Jobs -- /nodeReuse:false
 if($LASTEXITCODE){throw 'Receiver build failed'}
 $dest=Join-Path $projectRoot 'runtime\android-yanda'
 New-Item -ItemType Directory -Force $dest | Out-Null

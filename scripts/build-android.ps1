@@ -49,7 +49,7 @@ try {
  & "$jdk\bin\java.exe" -jar "$tools\lib\apksigner.jar" sign --ks $keystore --ks-key-alias yanda --ks-pass env:YANDA_APK_SIGNING_PASSWORD --out $apk "$work\aligned.apk"
  if($LASTEXITCODE){throw 'APK signing failed'}
 }finally{$env:YANDA_APK_SIGNING_PASSWORD=$oldSigningPassword;$secure.Dispose()}
-& "$jdk\bin\java.exe" -jar "$tools\lib\apksigner.jar" verify --verbose --print-certs $apk | Tee-Object -FilePath docs/evidence/android-apk-verification.log
+& "$jdk\bin\java.exe" -jar "$tools\lib\apksigner.jar" verify --verbose --print-certs $apk | Tee-Object -FilePath "docs/evidence/android-apk-verification-$version.log"
 if($LASTEXITCODE){throw 'APK signature verification failed'}
 & "$tools\aapt.exe" dump badging $apk | Select-Object -First 10
 Get-FileHash -LiteralPath $apk -Algorithm SHA256 | Select-Object Path,Hash

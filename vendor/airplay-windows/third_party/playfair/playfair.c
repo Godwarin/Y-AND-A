@@ -10,8 +10,11 @@ void x_xor(unsigned char* in, unsigned char* out, int blocks);
 
 extern unsigned char default_sap[];
 
-void playfair_decrypt(unsigned char* message3, unsigned char* cipherText, unsigned char* keyOut)
+int playfair_decrypt(unsigned char* message3, size_t messageLen,
+                     unsigned char* cipherText, size_t cipherLen, unsigned char* keyOut)
 {
+	if (!message3 || messageLen != 164 || message3[12] >= 4 ||
+	    !cipherText || cipherLen != 72 || !keyOut) return 0;
 	unsigned char* chunk1 = &cipherText[16];
 	unsigned char* chunk2 = &cipherText[56];
 	int i;
@@ -27,5 +30,6 @@ void playfair_decrypt(unsigned char* message3, unsigned char* cipherText, unsign
 	}
 	x_xor(keyOut, keyOut, 1);
 	z_xor(keyOut, keyOut, 1);
+	return 1;
 }
 

@@ -398,7 +398,10 @@ void MirrorListener::reader_loop(socket_t client) {
     uint64_t total_header = 0;
     uint64_t total_body   = 0;
 
-    auto running_fn = [this]() -> bool { return running_.load(); };
+    const auto first_packet_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
+    auto running_fn = [this, &frames, first_packet_deadline]() -> bool {
+        return running_.load() && (frames != 0 || std::chrono::steady_clock::now() < first_packet_deadline);
+    };
 
     while (running_) {
         int n = recv_exact(client, header.data(), kHeaderSize, running_fn);

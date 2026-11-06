@@ -136,6 +136,7 @@ bool RequestReader::read(socket_t fd, Request& out) {
     out = {};
     idle_=authorized_ && buffer_.empty();
     deadline_=std::chrono::steady_clock::now()+std::chrono::seconds(5);
+    if (!authorized_) deadline_ = std::min(deadline_, preauth_deadline_);
     if (cancelled_ && cancelled_->load()) return false;
 
     std::size_t body_offset = 0;
@@ -150,6 +151,7 @@ bool RequestReader::read(socket_t fd, Request& out) {
         if (!fill(fd, need)) return false;
     }
 
+    if (!authorized_ && std::chrono::steady_clock::now() >= preauth_deadline_) return false;
     out.body.assign(
         reinterpret_cast<const unsigned char*>(buffer_.data() + body_offset),
         reinterpret_cast<const unsigned char*>(buffer_.data() + body_offset + clen));

@@ -1464,6 +1464,14 @@ Response dispatch(const DeviceContext& ctx, ClientSession& session,
         auto denied=make(470,"Connection Authorization Required");copy_cseq(req,denied);return denied;
     }
 
+    if (!ctx.hls_player && (path == "/reverse" || path == "/play" || path == "/action" ||
+        path == "/stop" || path == "/scrub" || path == "/playback-info" ||
+        path == "/setProperty" || path == "/getProperty")) {
+        auto unavailable = make(404, "Not Found");
+        copy_cseq(req, unavailable);
+        return unavailable;
+    }
+
     // Order matches the rough handshake sequence iOS initiates.
     if (req.method == "GET"  && path == "/info")          return handle_info(ctx, req);
     if (req.method == "POST" && path == "/pair-setup")    return handle_pair_setup(ctx, req);
