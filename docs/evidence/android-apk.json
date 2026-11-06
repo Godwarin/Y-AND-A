@@ -1,8 +1,0 @@
-{
-  "status": "PASS",
-  "apkSha256": "181bf5a6e0159708cd8726a8872bb3eb79a709241ffca483c76d5b78acd298b3",
-  "signerCertificateSha256": "2657a1dc1b3754231d3b6add16e51354f08bc8f0b26cd8137bac6d34fd0871c3",
-  "jvmParserChecks": 24,
-  "crossLibraryQrRotations": 4,
-  "physicalAndroidTested": false
-}

@@ -1,19 +1,8 @@
 # Архитектура Y AND A
 
-React/TypeScript/Tauri2/Rust управляет native C++ FFmpeg/SDL HWND в viewer. Engine находится в Job-группе; падение engine не завершает UI. Original42: неизменённая геометрия,14FPS,visibility pause/reduced-motion. Presentation state отделён от media mutex; compact начинается после decoded video и восстанавливает прежнюю геометрию после stop.
+Интерфейс React и TypeScript работает в WebView2 через Tauri. Rust запускает нативные приёмники C++, управляет их окнами и завершает дочерние процессы при закрытии. FFmpeg декодирует видео, SDL выводит его в нативное окно. Компактное окно появляется после декодирования изображения, а после остановки возвращается к прежнему размеру.
 
-Android10+: MediaProjection + AudioPlaybackCapture → H264/PCM → TLS1.3 pinned QR certificate + one-use256bit token/TTL180s → native receiver. ADB отсутствует. Destination фиксируется до consent; pending8/per-IP1/deadline4s,packet10s/write3s. DRM/capture policies не обходятся, media/QR/private keys не выводятся в files/diagnostics.
-
-AirPlay: Ed25519 proof/key+peer → explicit PC approval/private stdin ID20s → fail-closed routes. TCP16,accept32/s,request40/s; bounded lengths/deadlines,max_pixels16M/thread2,media peer check. Trust RAM-only до stop. Trusted LAN: первое mDNS имя не удостоверяет приёмник, PIN/SRP не реализован.
-
-APK имеет стабильный publisher cert. Keys защищены owner-only ACL/CurrentUser DPAPI, encrypted backup подтверждён владельцем. ECDSA-P256 manifest связывает hashes/размеры3загрузок и требует доверенного fingerprint. Windows Authenticode отсутствует.
-
-Свежие scoped regression13+13PASS относятся к frozen receivers в offline LPAC guest. Trusted parent проверяет TCP PID/Job/executable и создаёт target-read-only proof; это не IPC продукта и не повышение его прав. Scope — [итог безопасности](SECURITY_VALIDATION_BETA_0.42.md).
-
-Label BETA-0.42 отделён от code version0.4.0-rc.1 через config/release.json и release-layout.ps1. Релиз — release/BETA-0.42, история — archive/releases.100tested application files при обновлении docs не пересобираются. Source export publish/github исключает private dirs/keys/backups/SDK/runtime. Source ZIP добавляет pinned dependency sources, необходимые для GPL/сборки.
-
-GitHub хранит код и будущие Release assets, в трансляцию не включён. В main закрытого Godwarin/Y-AND-A загружен исходный snapshot 0fb8cbe50f3298b9ac3d5f55bd59876fc58db73a: 308 файлов, remote blob hashes совпали. Source ZIP соответствует этому commit; последующий docs commit фиксирует загрузку. Tag и выпуск с assets ещё не созданы. Local package scripts не меняют remote commits/visibility, загрузка выполнялась GitHub connector. Product code и проверенные EXE/APK в этом этапе не менялись.
-
-## Удаление запускателя резервной копии из GitHub, 5 ноября 2026
-
-По просьбе владельца файл «СОХРАНИТЬ КЛЮЧИ.cmd» удалён из текущего main и исключён из ROOT_FILES экспортера, чтобы не возвращаться при следующей подготовке. Личные ключи и резервные копии не затрагиваются. Продуктовый код, EXE и APK не меняются; независимый агент не запускался. Проверка этого этапа: remote tree — файл отсутствует, остальные файлы сохранены. Старые commits не переписываются. Локальные подготовленные архивы соответствуют прежнему snapshot: перед загрузкой Release обновить source ZIP без запускателя и переподписать manifest; текущие assets не загружать как обновлённые.
+- **Android.** MediaProjection запрашивает системное согласие на захват в каждом сеансе. AudioPlaybackCapture передаёт разрешённый звук приложений. QR содержит одноразовый токен и отпечаток сертификата приёмника. Канал использует TLS 1.3.
+- **iPhone.** AirPlay обнаруживает приёмник через mDNS. Пользователь подтверждает отправителя на ПК. У разрешения есть проверяемый ключ и адрес отправителя. Режим предназначен для доверенной сети.
+- **Данные.** Приложение не записывает потоки на диск. Локально сохраняются настройки, профиль WebView2 и идентичность AirPlay. [Приватность](PRIVACY.md).
+- **Сборка.** Android-инструменты и ZXing сверяются по SHA-256. Проверка перед подписью Windows-выпуска требует отчёта доверенной сборки для каждого EXE/DLL. [Сборка из исходников](BUILD_FROM_SOURCE.md) · [Проверка файлов](BINARY_RELEASE_CHECK.md).

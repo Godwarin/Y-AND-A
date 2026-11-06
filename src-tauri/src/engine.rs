@@ -221,7 +221,7 @@ impl Backend {
             let exe = self.airplay_exe();
             if !exe.is_file() {
                 return Err(
-                    "Изолированный AirPlay bridge ещё не собран. См. docs/CURATOR_HANDOFF.md"
+                    "Приёмник AirPlay ещё не собран. См. docs/BUILD_FROM_SOURCE.md"
                         .into(),
                 );
             }

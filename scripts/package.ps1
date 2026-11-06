@@ -1,4 +1,4 @@
-param([switch]$FromTestedPackage,[switch]$SkipArchive,[string]$ArtifactVersion)
+param([switch]$FromTestedPackage,[switch]$SkipArchive,[string]$ArtifactVersion,[switch]$ForDeviceTesting)
 $ErrorActionPreference='Stop'
 $projectRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 Set-Location -LiteralPath $projectRoot
@@ -8,6 +8,11 @@ if (!$FromTestedPackage -and !(Test-Path runtime\airplay-yanda\airplay-windows.e
 . "$PSScriptRoot/release-layout.ps1"
 $layout=Get-YandaReleaseLayout $ArtifactVersion
 $version=$layout.ArtifactVersion
+$archive=$layout.WindowsZip
+if($ForDeviceTesting){
+    if($FromTestedPackage -or !$layout.BlockedForPublication -or $version -ceq 'BETA-0.42'){throw 'Device tests require a new release label that is blocked for publication'}
+    $archive=Join-Path $layout.ReleaseDirectory "Y-AND-A-$version-device-test-win64.zip"
+}
 $destination=$layout.WindowsDirectory
 New-Item -ItemType Directory -Force $destination,(Join-Path $destination 'runtime') | Out-Null
 function Copy-IfChanged([string]$Source,[string]$Target) {
@@ -47,16 +52,21 @@ Copy-IfChanged $layout.AndroidInput (Join-Path $layout.ReleaseDirectory $layout.
 Copy-IfChanged (Join-Path $projectRoot 'runtime\airplay-yanda') (Join-Path $destination 'runtime\airplay-yanda')
 }
 Copy-Item LICENSE,THIRD_PARTY_NOTICES.md -Destination $destination
-[IO.File]::WriteAllText((Join-Path $destination 'README.md'),"# Y AND A $version`n`nРаспакуйте папку Windows целиком и запустите Y AND A.exe. Инструкция по подключению телефона находится в docs/USER_GUIDE.md. Для Android используйте APK из этого же выпуска. Для iPhone включите AirPlay.`n`nEXE без Authenticode. Проверьте контрольные суммы по подписанному манифесту выпуска.`n")
+$releaseNote=if($ForDeviceTesting){'Сборка для проверки на телефонах. Публичный выпуск ещё не подготовлен.'}else{'EXE без Authenticode. Проверьте контрольные суммы по подписанному манифесту выпуска.'}
+[IO.File]::WriteAllText((Join-Path $destination 'README.md'),"# Y AND A $version`n`nРаспакуйте папку Windows целиком и запустите Y AND A.exe. Инструкция по подключению телефона находится в docs/USER_GUIDE.md. Для Android используйте APK из этого же выпуска. Для iPhone включите AirPlay.`n`n$releaseNote`n")
 $docsDir=Join-Path $destination 'docs';$evidenceDir=Join-Path $docsDir 'evidence'
-New-Item -ItemType Directory -Force $docsDir,$evidenceDir | Out-Null
+New-Item -ItemType Directory -Force $docsDir | Out-Null
 $publicDocs=@('SECURITY_VALIDATION_BETA_0.42.md','BINARY_RELEASE_CHECK.md','USER_GUIDE.md','PRIVACY.md','CLOSED_BETA.md','SECURITY_RELEASE_REVIEW.md','SECURITY_FOLLOWUP_2026-11-04.md','BUILD_FROM_SOURCE.md')
+if($ForDeviceTesting){$publicDocs=@('USER_GUIDE.md','PRIVACY.md','SECURITY_REMEDIATION_2026-11-05.md')}
 Get-ChildItem -LiteralPath $docsDir -File | Where-Object {$_.Name -notin $publicDocs} | ForEach-Object {Remove-Item -LiteralPath $_.FullName}
 $docRoot=if($FromTestedPackage){Join-Path $projectRoot 'publish/github'}else{$projectRoot}
 foreach($publicDoc in $publicDocs) {Copy-Item -LiteralPath (Join-Path $docRoot "docs/$publicDoc") -Destination $docsDir -Force}
 $publicEvidence=@('isolated-security-validation.json','beta-0.42-defender-final.json','native-smoke.json','android-protocol.json','android-apk-verification.log','android-apk.json','android-qr-decoding.log','android-parser.log','airplay-protocol.log','security-candidate.json','security-followup.json','native-runtime-inventory.json','dependency-osv.json','npm-audit-production.json','npm-audit-all.json')
-Get-ChildItem -LiteralPath $evidenceDir -File | Where-Object {$_.Name -notin $publicEvidence} | ForEach-Object {Remove-Item -LiteralPath $_.FullName}
-foreach($evidence in $publicEvidence) {Copy-Item (Join-Path 'docs/evidence' $evidence) $evidenceDir -Force}
+if(!$ForDeviceTesting){
+    New-Item -ItemType Directory -Force $evidenceDir | Out-Null
+    Get-ChildItem -LiteralPath $evidenceDir -File | Where-Object {$_.Name -notin $publicEvidence} | ForEach-Object {Remove-Item -LiteralPath $_.FullName}
+    foreach($evidence in $publicEvidence) {Copy-Item (Join-Path 'docs/evidence' $evidence) $evidenceDir -Force}
+}elseif(Test-Path -LiteralPath $evidenceDir){throw 'Device test package must not reuse old evidence'}
 if (!$FromTestedPackage) {
 $licenseDir=Join-Path $destination 'licenses'
 New-Item -ItemType Directory -Force $licenseDir | Out-Null
@@ -89,5 +99,5 @@ if (Test-Path $vswhere) {
 }
 $manifest=Get-ChildItem $destination -File -Recurse | Where-Object {$_.Name -ne 'SHA256SUMS.txt'} | Sort-Object FullName | ForEach-Object { $hash=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLower(); "$hash  $($_.FullName.Substring($destination.Length+1))" }
 $manifest | Set-Content -LiteralPath (Join-Path $destination 'SHA256SUMS.txt') -Encoding utf8
-if (!$SkipArchive) { Compress-Archive -Path $destination -DestinationPath $layout.WindowsZip -Force }
+if (!$SkipArchive) { Compress-Archive -Path $destination -DestinationPath $archive -Force }
 Write-Output "Portable: $destination\Y AND A.exe"

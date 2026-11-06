@@ -20,6 +20,7 @@ OUT = ROOT / 'docs/evidence/beta-0.42-lightweight.json'
 BLOCK = 65536
 MAX_ENTRY = 64 * 1024 * 1024
 MAX_TOTAL = 1024 * 1024 * 1024
+MAX_PE = 32 * 1024 * 1024
 SECRET = re.compile(
     rb'-----BEGIN (?:RSA |DSA |EC |OPENSSH |ENCRYPTED )?PRIVATE KEY-----'
     rb'|PuTTY-User-Key-File-[23]:'
@@ -57,10 +58,13 @@ def safe_zip_path(name):
     return True
 
 
-def archive(path):
+def archive(path, expected_sha256=None):
     result = {'path': path.name, 'sha256': digest(path), 'entries': 0,
               'bytesRead': 0, 'textEntriesScanned': 0, 'problems': []}
     hashes = {}
+    if expected_sha256 is not None and result['sha256'] != expected_sha256:
+        result['problems'].append({'path': path.name, 'reason': 'candidate_archive_hash_mismatch'})
+        return result, hashes
     with zipfile.ZipFile(path) as z:
         entries = z.infolist()
         if len(entries) > 2048:
@@ -109,9 +113,13 @@ def archive(path):
 
 
 def pe_imports(path):
-    if path.stat().st_size > 32 * 1024 * 1024:
+    if path.stat().st_size > MAX_PE:
         raise ValueError('PE_SIZE_BOUND')
-    data = path.read_bytes()
+    own = {p.name.lower() for p in path.parent.iterdir() if p.is_file()}
+    return inspect_pe(path.read_bytes(), path.relative_to(WINDOWS).as_posix(), own)
+
+
+def inspect_pe(data, name, own):
     if data[:2] != b'MZ':
         raise ValueError('PE_DOS_SIGNATURE')
     offset = struct.unpack_from('<I', data, 0x3c)[0]
@@ -168,40 +176,145 @@ def pe_imports(path):
             imports.add(text_at(name_rva))
         else:
             raise ValueError('PE_IMPORT_COUNT_BOUND')
-    own = {p.name.lower() for p in path.parent.iterdir() if p.is_file()}
     system = Path(os.environ.get('SystemRoot', r'C:\Windows')) / 'System32'
     unresolved = []
     local_crt_missing = []
-    for name in sorted(imports):
-        if CRT.fullmatch(name) and name not in own:
-            local_crt_missing.append(name)
-        if name not in own and not name.startswith(('api-ms-', 'ext-ms-')) and not (system / name).is_file():
-            unresolved.append(name)
-    return {'path': path.relative_to(WINDOWS).as_posix(), 'imports': sorted(imports),
+    for dependency in sorted(imports):
+        if CRT.fullmatch(dependency) and dependency not in own:
+            local_crt_missing.append(dependency)
+        if dependency not in own and not dependency.startswith(('api-ms-', 'ext-ms-')) and not (system / dependency).is_file():
+            unresolved.append(dependency)
+    return {'path': name, 'imports': sorted(imports),
             'unresolvedOnThisWindows': unresolved, 'crtNotBesideImage': local_crt_missing}
+
+
+def inspect_042a(report):
+    release = ROOT / 'release/0.42a'
+    receipt = json.loads((ROOT / 'docs/evidence/0.42a-local-build.json').read_text(encoding='utf-8-sig'))
+    reference = json.loads((ROOT / 'publish/github-0.42a-artifact-metadata.json').read_text(encoding='utf-8-sig'))
+    if receipt['artifactVersion'] != '0.42a' or reference['artifactVersion'] != '0.42a':
+        raise ValueError('ARTIFACT_REFERENCE_VERSION_MISMATCH')
+    windows = 'Y-AND-A-0.42a-device-test-win64.zip'
+    source = 'Y-AND-A-0.42a-source.zip'
+    apk = 'Y-AND-A-0.42a-android.apk'
+    expected = {row['path']: row['sha256'] for row in reference['archives']}
+    contents = {}
+    for name in (windows, apk, source):
+        path = release / name
+        item, contents[name] = archive(path, expected[name])
+        report['archives'].append(item)
+        report['problems'].extend(item['problems'])
+        if not item.get('crcAndFullReadVerified'):
+            return
+        if digest(path) != expected[name]:
+            report['problems'].append({'path': name, 'reason': 'candidate_archive_changed_during_scan'})
+            return
+    components = {
+        'exe': 'Windows/Y AND A.exe',
+        'apk': 'Windows/Y-AND-A-0.4.0-rc.2-android.apk',
+        'androidReceiver': 'Windows/runtime/android-yanda/yanda-android.exe',
+        'airplayReceiver': 'Windows/runtime/airplay-yanda/airplay-windows.exe',
+    }
+    win_entries = contents[windows]
+    for kind, name in components.items():
+        if win_entries.get(name) != receipt['componentHashes'][kind]:
+            report['problems'].append({'path': name, 'reason': 'packaged_component_hash_mismatch'})
+    if expected[apk] != receipt['componentHashes']['apk']:
+        report['problems'].append({'path': apk, 'reason': 'standalone_apk_hash_mismatch'})
+    binaries = {name: value for name, value in win_entries.items()
+                if PurePosixPath(name).suffix.lower() in {'.exe', '.dll'}}
+    if len(binaries) != reference['peFilesChecked']:
+        report['problems'].append({'path': windows, 'reason': 'candidate_pe_count_mismatch'})
+    if report['problems']:
+        return
+    folders = {}
+    for name in win_entries:
+        path = PurePosixPath(name)
+        folders.setdefault(path.parent, set()).add(path.name.lower())
+    with zipfile.ZipFile(release / windows) as archive_file:
+        for name, expected_hash in binaries.items():
+            entry = archive_file.getinfo(name)
+            if entry.file_size > MAX_PE:
+                raise ValueError('PE_SIZE_BOUND')
+            data = archive_file.read(entry)
+            if hashlib.sha256(data).hexdigest() != expected_hash:
+                raise ValueError('PE_CHANGED_DURING_SCAN')
+            path = PurePosixPath(name)
+            info = inspect_pe(data, path.relative_to('Windows').as_posix(), folders[path.parent])
+            del data
+            report['peImports'].append(info)
+            if info['unresolvedOnThisWindows'] or info['crtNotBesideImage']:
+                report['problems'].append({'path': name, 'reason': 'dependency_review_needed'})
+    snapshot = json.loads((ROOT / 'publish/github-0.42a-manifest.json').read_text(encoding='utf-8'))
+    for row in snapshot['files']:
+        if contents[source].get(row['path']) != row['sha256']:
+            report['problems'].append({'path': row['path'], 'reason': 'reviewed_source_snapshot_mismatch'})
+    report['frozenApplicationFilesChecked'] = len(binaries) + 1
+    report['sourceSnapshotFilesChecked'] = len(snapshot['files'])
+    report['apkPreviouslyVerifiedSha256'] = receipt['componentHashes']['apk']
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--output', default=str(OUT))
+    parser.add_argument('--artifact-version', choices=('BETA-0.42', '0.42a'), default='BETA-0.42')
+    parser.add_argument('--output')
     args = parser.parse_args()
-    destination = Path(args.output).resolve()
+    default_output = ROOT / 'publish/0.42a-lightweight-check.json' if args.artifact_version == '0.42a' else OUT
+    destination = Path(args.output or default_output).resolve()
     if destination.parent not in {(ROOT / 'docs/evidence').resolve(), (ROOT / 'publish').resolve()} or destination.suffix != '.json':
         raise ValueError('REPORT_PATH_NOT_ALLOWED')
+    if destination.name.casefold() in {
+        '0.42a-local-build.json', 'github-0.42a-artifact-metadata.json',
+        'github-0.42a-manifest.json', 'artifact-relocation.json', 'github-manifest.json',
+    }:
+        raise ValueError('REPORT_CANNOT_REPLACE_REFERENCE')
     # Public path fixtures exercise only this trusted metadata validator.
     negatives = ['../x', '/x', 'C:/x', 'a\\b', 'a/../b', 'NUL.txt', 'COM1/a',
                  'a/file:stream', 'a./b', 'a//b', 'a/ x ', 'a/\x00b']
     if not all(not safe_zip_path(n) for n in negatives) or not safe_zip_path('Windows/Y AND A.exe'):
         raise ValueError('PATH_VALIDATOR_SELF_CHECK')
     report = {'date': datetime.datetime.now(datetime.timezone.utc).isoformat(),
-              'artifactVersion': 'BETA-0.42', 'status': 'PASS_METADATA_CHECKS',
+              'artifactVersion': args.artifact_version, 'status': 'PASS_METADATA_CHECKS',
               'productCodeExecuted': False, 'vmStarted': False,
+              'cleanWindowsStartupAssessed': False, 'isolatedProtocolTestsAssessed': False,
               'pathNegativeFixturesRejected': len(negatives),
               'archives': [], 'peImports': [], 'problems': [],
-              'memoryDesign': {'archiveReadBlockBytes': BLOCK, 'maxPeReadBytes': 32 * 1024 * 1024},
+              'memoryDesign': {'archiveReadBlockBytes': BLOCK, 'maxPeReadBytes': MAX_PE},
               'limitations': ['Not a runtime, malware or exhaustive secret audit',
                              'Nested dependency archives and binary string secrets are not recursively scanned',
                              'API-set imports are recognized by prefix; this host is not a fresh Windows installation']}
+    if args.artifact_version == '0.42a':
+        inspect_042a(report)
+    else:
+        inspect_beta(report)
+    if report['problems']:
+        report['status'] = 'NEEDS_REVIEW'
+    if os.name == 'nt':
+        import ctypes
+        class Memory(ctypes.Structure):
+            _fields_ = [('cb', ctypes.c_uint32), ('faults', ctypes.c_uint32)] + [
+                (name, ctypes.c_size_t) for name in
+                ['peakWorkingSet', 'workingSet', 'peakPaged', 'paged',
+                 'peakNonPaged', 'nonPaged', 'pagefile', 'peakPagefile']]
+        kernel = ctypes.WinDLL('kernel32', use_last_error=True)
+        kernel.GetCurrentProcess.restype = ctypes.c_void_p
+        kernel.K32GetProcessMemoryInfo.argtypes = [ctypes.c_void_p, ctypes.POINTER(Memory), ctypes.c_uint32]
+        memory = Memory(cb=ctypes.sizeof(Memory))
+        if not kernel.K32GetProcessMemoryInfo(kernel.GetCurrentProcess(), ctypes.byref(memory), memory.cb):
+            raise ValueError('OWN_PROCESS_MEMORY_QUERY_FAILED')
+        report['observedOwnPeakWorkingSetMiB'] = round(memory.peakWorkingSet / 1048576, 1)
+    destination.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding='utf-8')
+    drift = report.get('sourceArchiveDrift', {})
+    print(json.dumps({'status': report['status'], 'archives': len(report['archives']),
+                      'frozenFiles': report.get('frozenApplicationFilesChecked', 0), 'peFiles': len(report['peImports']),
+                      'sourceArchiveChangedFiles': len(drift.get('currentSnapshotDifferentFiles', [])),
+                      'applicationCodeDrift': drift.get('applicationCodeDifferentFiles', []),
+                      'observedOwnPeakWorkingSetMiB': report.get('observedOwnPeakWorkingSetMiB'),
+                      'problems': report['problems'], 'productCodeExecuted': False}, ensure_ascii=False))
+    return 0 if not report['problems'] else 2
+
+
+def inspect_beta(report):
     manifests = {}
     for name in ['Y-AND-A-BETA-0.42-win64.zip', 'Y-AND-A-BETA-0.42-source.zip', 'Y-AND-A-BETA-0.42-android.apk']:
         item, hashes = archive(RELEASE / name)
@@ -232,29 +345,6 @@ def main():
                                   'refreshNeededBeforePublication': bool(drift)}
     if code_drift:
         report['problems'].append({'reason': 'source_archive_application_code_drift'})
-    if report['problems']:
-        report['status'] = 'NEEDS_REVIEW'
-    if os.name == 'nt':
-        import ctypes
-        class Memory(ctypes.Structure):
-            _fields_ = [('cb', ctypes.c_uint32), ('faults', ctypes.c_uint32)] + [
-                (name, ctypes.c_size_t) for name in
-                ['peakWorkingSet', 'workingSet', 'peakPaged', 'paged',
-                 'peakNonPaged', 'nonPaged', 'pagefile', 'peakPagefile']]
-        kernel = ctypes.WinDLL('kernel32', use_last_error=True)
-        kernel.GetCurrentProcess.restype = ctypes.c_void_p
-        kernel.K32GetProcessMemoryInfo.argtypes = [ctypes.c_void_p, ctypes.POINTER(Memory), ctypes.c_uint32]
-        memory = Memory(cb=ctypes.sizeof(Memory))
-        if not kernel.K32GetProcessMemoryInfo(kernel.GetCurrentProcess(), ctypes.byref(memory), memory.cb):
-            raise ValueError('OWN_PROCESS_MEMORY_QUERY_FAILED')
-        report['observedOwnPeakWorkingSetMiB'] = round(memory.peakWorkingSet / 1048576, 1)
-    destination.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding='utf-8')
-    print(json.dumps({'status': report['status'], 'archives': len(report['archives']),
-                      'frozenFiles': len(frozen), 'peFiles': len(report['peImports']),
-                      'sourceArchiveChangedFiles': len(drift), 'applicationCodeDrift': code_drift,
-                      'observedOwnPeakWorkingSetMiB': report.get('observedOwnPeakWorkingSetMiB'),
-                      'problems': report['problems'], 'productCodeExecuted': False}, ensure_ascii=False))
-    return 0 if not report['problems'] else 2
 
 
 if __name__ == '__main__':

@@ -1,6 +1,6 @@
 [package]
 name = "y-and-a"
-version = "0.4.0-rc.1"
+version = "0.4.0-rc.2"
 description = "Y AND A — локальная трансляция экрана и звука"
 edition = "2021"
 license = "GPL-3.0-only"

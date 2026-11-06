@@ -1,15 +1,15 @@
-param([string]$ArtifactVersion)
+param([string]$ArtifactVersion,[switch]$SourceOnly)
 $ErrorActionPreference='Stop'
 $projectRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 Set-Location -LiteralPath $projectRoot
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 . "$PSScriptRoot/release-layout.ps1"
+. "$PSScriptRoot/release-apk-binding.ps1"
 $layout=Get-YandaReleaseLayout $ArtifactVersion
-$version=$layout.ArtifactVersion
-$folder="BETA Windows"
 $prefix='Windows/'
 $portable=$layout.WindowsZip
 $source=$layout.SourceZip
+if(!$SourceOnly){
 $expected=@{}
 Get-Content (Join-Path $layout.WindowsDirectory 'SHA256SUMS.txt') | ForEach-Object {if($_ -match '^([a-f0-9]{64})  (.+)$'){$expected[$Matches[2].Replace([char]92,[char]47)]=$Matches[1]}}
 $zip=[IO.Compression.ZipFile]::OpenRead($portable)
@@ -32,12 +32,15 @@ try {
     }
     if($verified -ne $expected.Count){throw 'Portable archive is missing files'}
 } finally {$zip.Dispose()}
+}
+$sourceChecked=0
 $sourceZip=[IO.Compression.ZipFile]::OpenRead($source)
 try {
-    $snapshot=Get-Content -Raw publish/github-manifest.json | ConvertFrom-Json
-    $expectedSource=@{}
+    $snapshot=Get-Content -Raw -LiteralPath $layout.SourceSnapshotManifest | ConvertFrom-Json
+    if($layout.ArtifactVersion -ceq '0.42a' -and $snapshot.artifactVersion -cne $layout.ArtifactVersion){throw 'Snapshot belongs to a different artifact'}
+    $expectedSource=[Collections.Generic.Dictionary[string,string]]::new([StringComparer]::Ordinal)
     foreach($item in $snapshot.files){$expectedSource.Add($item.path,$item.sha256)}
-    $inputsFile=Join-Path $projectRoot 'build/source-inputs/SOURCE_INPUTS.json'
+    $inputsFile=Join-Path $layout.SourceInputsDirectory 'SOURCE_INPUTS.json'
     $expectedSource.Add('dependency-sources/SOURCE_INPUTS.json',(Get-FileHash -LiteralPath $inputsFile).Hash)
     foreach($item in (Get-Content -Raw -LiteralPath $inputsFile | ConvertFrom-Json).files){
         $expectedSource.Add(('dependency-sources/'+$item.path),$item.sha256)
@@ -48,12 +51,17 @@ try {
         $stream=$entry.Open()
         try{$hash=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($stream))}finally{$stream.Dispose()}
         if($hash -ine $expectedSource[$name]){throw "Source content mismatch: $name"}
-        $expectedSource.Remove($name)
+        [void]$expectedSource.Remove($name)
+        $sourceChecked++
     }
     if($expectedSource.Count){throw 'Source archive missing recorded entries'}
-    if(!$sourceZip.GetEntry('android-app/src/local/yanda/companion/StreamService.java') -or !$sourceZip.GetEntry('native/android-receiver/main.cpp') -or !$sourceZip.GetEntry('src-tauri/src/engine.rs') -or !$sourceZip.GetEntry('src-tauri/src/engine/companion.rs') -or !$sourceZip.GetEntry('src-tauri/src/presentation.rs') -or !$sourceZip.GetEntry('src/AndroidConnection.tsx') -or !$sourceZip.GetEntry('docs/CURATOR_HANDOFF.md') -or !$sourceZip.GetEntry('vendor/airplay-windows/tools/test_yanda_audio_disabled.cpp')){throw 'Source archive incomplete'}
+    if(!$sourceZip.GetEntry('android-app/src/local/yanda/companion/StreamService.java') -or !$sourceZip.GetEntry('native/android-receiver/main.cpp') -or !$sourceZip.GetEntry('src-tauri/src/engine.rs') -or !$sourceZip.GetEntry('src-tauri/src/engine/companion.rs') -or !$sourceZip.GetEntry('src-tauri/src/presentation.rs') -or !$sourceZip.GetEntry('src/AndroidConnection.tsx') -or !$sourceZip.GetEntry('docs/ARCHITECTURE.md') -or !$sourceZip.GetEntry('vendor/airplay-windows/tools/test_yanda_audio_disabled.cpp')){throw 'Source archive incomplete'}
     foreach($entry in $sourceZip.Entries){if($entry.FullName -match '(^|/)\.git/|(^|/)identity\.key$|(^|/)adbkey(\.pub)?$|(^|/)\.local/|\.(p12|jks|pfx|dpapi|yanda-backup)$|local-password'){throw "Private/generated file in source: $($entry.FullName)"}}
 } finally {$sourceZip.Dispose()}
+if($SourceOnly){
+    [ordered]@{status='PASS_SOURCE_ARCHIVE';artifactVersion=$layout.ArtifactVersion;entries=$sourceChecked;sha256=(Get-FileHash -LiteralPath $source).Hash.ToLowerInvariant();binarySecurityAssessed=$false}|ConvertTo-Json
+    return
+}
 $smoke=Get-Content -Raw docs\evidence\native-smoke.json | ConvertFrom-Json
 $exeHash=(Get-FileHash (Join-Path $layout.WindowsDirectory 'Y AND A.exe') -Algorithm SHA256).Hash.ToLowerInvariant()
 if($exeHash -ne $smoke.sha256 -or $smoke.failure -or $smoke.errors.Count -ne 0 -or $smoke.checks.Count -lt 24){throw 'Packaged executable differs from successful native smoke (at least 24 checks)'}
@@ -64,6 +72,9 @@ $apkHash=(Get-FileHash (Join-Path $layout.WindowsDirectory $layout.InternalAndro
 $receiverHash=(Get-FileHash (Join-Path $layout.WindowsDirectory 'runtime/android-yanda/yanda-android.exe') -Algorithm SHA256).Hash.ToLowerInvariant()
 $airplayHash=(Get-FileHash (Join-Path $layout.WindowsDirectory 'runtime/airplay-yanda/airplay-windows.exe') -Algorithm SHA256).Hash.ToLowerInvariant()
 if($apkHash -ne $apkEvidence.apkSha256 -or $apkEvidence.status -ne 'PASS' -or $receiverHash -ne $protocol.receiverSha256 -or $protocol.checks.Count -ne 13 -or $smoke.androidReceiverSha256 -ne $receiverHash -or !$smoke.nativePixelCheck){throw 'Packaged Android APK/receiver differ from verified artifacts'}
+$standaloneApkHash=(Get-FileHash -LiteralPath (Join-Path $layout.ReleaseDirectory $layout.AndroidName) -Algorithm SHA256).Hash
+Assert-YandaReleaseApkBinding -WindowsZip $portable -InternalName $layout.InternalAndroidName `
+    -ApkSha256 $standaloneApkHash -VerifiedApkSha256 $apkHash
 $security=Get-Content -Raw docs/evidence/security-candidate.json | ConvertFrom-Json
 if($security.checks.Count -lt 13){throw 'Missing concurrent Android handshake regression'}
 if($security.status -ne 'PASS' -or $security.version -ne $appVersion -or $security.checks.Count -lt 12 -or $security.hashes.'android-yanda/yanda-android.exe' -ne $receiverHash -or $security.hashes.'airplay-yanda/airplay-windows.exe' -ne $airplayHash -or $smoke.airplayReceiverSha256 -ne $airplayHash -or !$smoke.approvalUiCaptured){throw 'Candidate security regression/approval evidence does not match packaged helpers'}

@@ -107,12 +107,19 @@ bool parse_airplay2_setup(const unsigned char* body, std::size_t len,
     if (streams && plist_get_node_type(streams) == PLIST_ARRAY) {
         out.has_streams = true;
         uint32_t n = plist_array_get_size(streams);
+        if (n > 2) { plist_free(root); return false; }
+        bool audio_seen = false, mirror_seen = false;
         out.streams.reserve(n);
         for (uint32_t i = 0; i < n; ++i) {
             plist_t s = plist_array_get_item(streams, i);
-            if (!s || plist_get_node_type(s) != PLIST_DICT) continue;
+            if (!s || plist_get_node_type(s) != PLIST_DICT) { plist_free(root); return false; }
             StreamRequest sr;
-            sr.type              = static_cast<int>(get_uint(s, "type"));
+            const auto type = get_uint(s, "type");
+            if ((type != 96 && type != 110) || (type == 96 && audio_seen) ||
+                (type == 110 && mirror_seen)) { plist_free(root); return false; }
+            if (type == 96) audio_seen = true;
+            else mirror_seen = true;
+            sr.type              = static_cast<int>(type);
             sr.stream_conn_id    = get_uint(s, "streamConnectionID");
             sr.remote_control_port = static_cast<int>(get_uint(s, "controlPort"));
             sr.ct                = static_cast<int>(get_uint(s, "ct"));

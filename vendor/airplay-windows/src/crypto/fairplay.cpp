@@ -6,10 +6,7 @@
 
 #if defined(HAVE_PLAYFAIR)
 extern "C" {
-    // Signature from UxPlay/lib/playfair/playfair.h (GPL-3.0).
-    void playfair_decrypt(unsigned char* message3,
-                          unsigned char* cipherText,
-                          unsigned char* keyOut);
+#include "playfair.h"
 }
 #endif
 
@@ -125,7 +122,10 @@ std::vector<unsigned char> FairPlaySession::decrypt_stream_key(
     std::vector<unsigned char> ekey_copy   = ekey;
     std::vector<unsigned char> out(16, 0);
 
-    playfair_decrypt(keymsg_copy.data(), ekey_copy.data(), out.data());
+    if (!playfair_decrypt(keymsg_copy.data(), keymsg_copy.size(),
+                          ekey_copy.data(), ekey_copy.size(), out.data())) {
+        return {};
+    }
     return out;
 #endif
 }
@@ -139,6 +139,13 @@ bool FairPlaySession::handle_msg3(const unsigned char* in, std::size_t /*len*/,
         return false;
     }
 
+    if (in[12] >= 4) {
+        LOG_ERROR << "fp-setup msg3: invalid mode";
+        keymsg_.clear();
+        out.clear();
+        state_ = State::Failed;
+        return false;
+    }
     keymsg_.assign(in, in + kMsg3Len);
 
     out.resize(kMsg4Len);

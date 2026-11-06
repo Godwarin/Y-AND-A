@@ -54,7 +54,9 @@ struct BitReader {
     // Unsigned Exp-Golomb: count leading zeros, then read that many bits +1.
     uint32_t ue() {
         int zeros = 0;
-        while (!u1() && !error && zeros < 32) ++zeros;
+        while (!u1() && !error) {
+            if (++zeros == 32) { error = true; return 0; }
+        }
         if (error) return 0;
         if (zeros == 0) return 0;
         uint32_t v = u(zeros);

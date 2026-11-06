@@ -1,8 +1,9 @@
 {
-  "artifactVersion": "BETA-0.42",
-  "productVersion": "0.4.0-rc.1",
+  "artifactVersion": "0.42a",
+  "productVersion": "0.4.0-rc.2",
   "stage": "beta",
   "preserveTestedApplicationBytes": true,
+  "blockedForPublication": ["BETA-0.42", "0.42a"],
   "repository": "https://github.com/Godwarin/Y-AND-A",
   "repositoryMustRemainPrivate": true
 }

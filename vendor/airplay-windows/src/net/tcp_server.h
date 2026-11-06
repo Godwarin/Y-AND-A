@@ -3,6 +3,7 @@
 #include "net/socket.h"
 
 #include <atomic>
+#include <chrono>
 #include <condition_variable>
 #include <functional>
 #include <mutex>
@@ -17,6 +18,8 @@ namespace ap::net {
 struct ClientSocket {
     socket_t fd = INVALID_SOCK;
     std::shared_ptr<std::atomic<bool>> cancelled = std::make_shared<std::atomic<bool>>(false);
+    std::shared_ptr<std::atomic<bool>> authorized = std::make_shared<std::atomic<bool>>(false);
+    std::chrono::steady_clock::time_point accepted_at;
     std::string peer;   // "ip:port"
 };
 
@@ -61,7 +64,12 @@ private:
     std::mutex          clients_mtx_;
     std::condition_variable clients_cv_;
     bool disconnecting_{false};
-    std::map<socket_t, std::shared_ptr<std::atomic<bool>>> active_clients_;
+    struct ActiveClient {
+        std::shared_ptr<std::atomic<bool>> cancelled;
+        std::shared_ptr<std::atomic<bool>> authorized;
+        std::string address;
+    };
+    std::map<socket_t, ActiveClient> active_clients_;
 };
 
 } // namespace ap::net

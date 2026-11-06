@@ -283,7 +283,7 @@ function App() {
   }
   async function copyDiagnostics() {
     const text = [
-      "Y AND A 0.4.0-rc.1",
+      "Y AND A 0.42a",
       desktop ? "Tauri Windows" : "Веб-просмотр",
       `Источник: ${sourceNames[source]}`,
       `Состояние: ${snapshot.phase}`,

@@ -106,9 +106,10 @@ StreamSession::StreamSession() : session_id_(random_session_id()) {}
 StreamSession::~StreamSession() { teardown(); }
 
 bool StreamSession::setup_legacy(const std::string& transport, StreamPorts& allocated) {
-    client_ports_.server  = pick_port(transport, "server_port");   // rare from iOS
-    client_ports_.control = pick_port(transport, "control_port");
-    client_ports_.timing  = pick_port(transport, "timing_port");
+    StreamPorts client_ports{};
+    client_ports.server  = pick_port(transport, "server_port");
+    client_ports.control = pick_port(transport, "control_port");
+    client_ports.timing  = pick_port(transport, "timing_port");
 
     // Data socket: always bind. Control + timing only when iOS mentions them.
     auto [d_sock, d_port] = bind_udp();
@@ -116,29 +117,20 @@ bool StreamSession::setup_legacy(const std::string& transport, StreamPorts& allo
         LOG_ERROR << "SETUP: cannot bind UDP data socket";
         return false;
     }
-    data_sock_       = d_sock;
-    allocated.server = d_port;
+    auto [c_sock, c_port] = client_ports.control ? bind_udp() : std::pair<socket_t, uint16_t>{INVALID_SOCK, 0};
+    auto [t_sock, t_port] = client_ports.timing ? bind_udp() : std::pair<socket_t, uint16_t>{INVALID_SOCK, 0};
+    if ((client_ports.control && c_sock == INVALID_SOCK) ||
+        (client_ports.timing && t_sock == INVALID_SOCK)) {
+        for (const auto fd : {d_sock, c_sock, t_sock}) ap::net::close_socket(fd);
+        return false;
+    }
 
-    if (client_ports_.control) {
-        auto [c_sock, c_port] = bind_udp();
-        if (c_sock == INVALID_SOCK) {
-            LOG_ERROR << "SETUP: cannot bind UDP control socket";
-            teardown();
-            return false;
-        }
-        ctrl_sock_        = c_sock;
-        allocated.control = c_port;
-    }
-    if (client_ports_.timing) {
-        auto [t_sock, t_port] = bind_udp();
-        if (t_sock == INVALID_SOCK) {
-            LOG_ERROR << "SETUP: cannot bind UDP timing socket";
-            teardown();
-            return false;
-        }
-        timing_sock_     = t_sock;
-        allocated.timing = t_port;
-    }
+    for (const auto fd : {data_sock_, ctrl_sock_, timing_sock_}) ap::net::close_socket(fd);
+    data_sock_ = d_sock;
+    ctrl_sock_ = c_sock;
+    timing_sock_ = t_sock;
+    client_ports_ = client_ports;
+    allocated = {d_port, c_port, t_port};
 
     LOG_INFO << "SETUP session=" << session_id_
              << "  client(control=" << client_ports_.control
@@ -150,6 +142,11 @@ bool StreamSession::setup_legacy(const std::string& transport, StreamPorts& allo
 }
 
 bool StreamSession::setup_session(uint16_t& event_port, uint16_t& timing_port) {
+    if (event_sock_ != INVALID_SOCK && ap2_timing_sock != INVALID_SOCK) {
+        event_port = ap2_event_port_;
+        timing_port = ap2_timing_port_;
+        return true;
+    }
     auto [e_sock, e_port] = bind_udp();
     if (e_sock == INVALID_SOCK) {
         LOG_ERROR << "SETUP (airplay2 session): cannot bind event socket";
@@ -163,6 +160,8 @@ bool StreamSession::setup_session(uint16_t& event_port, uint16_t& timing_port) {
     }
     event_sock_      = e_sock;
     ap2_timing_sock  = t_sock;
+    ap2_event_port_  = e_port;
+    ap2_timing_port_ = t_port;
     event_port       = e_port;
     timing_port      = t_port;
     LOG_INFO << "SETUP session=" << session_id_
@@ -174,6 +173,8 @@ bool StreamSession::setup_stream(int type,
                                  uint16_t& data_port,
                                  uint16_t& control_port,
                                  const StreamOpts& opts) {
+    if (type != 96 && type != 110) return false;
+    stop_stream(type);
     control_port = 0;
 
     // Type 110 (mirror video) uses a TCP byte stream, not UDP RTP. iOS will
@@ -214,7 +215,7 @@ bool StreamSession::setup_stream(int type,
         return true;
     }
 
-    // Type 96 (audio) and any other UDP-based stream.
+    // Type 96 (audio) uses UDP.
     auto [d_sock, d_port] = bind_udp();
     if (d_sock == INVALID_SOCK) return false;
     auto [c_sock, c_port] = bind_udp();
@@ -240,11 +241,11 @@ bool StreamSession::setup_stream(int type,
         ac.sample_rate = opts.sample_rate;
         ac.renderer    = renderer_;
         if (!audio_->start(std::move(ac), std::move(paused_audio_))) {
-            LOG_WARN << "SETUP stream 96: AudioReceiver failed to start "
-                        "(UDP socket left bound, no decrypt)";
-            // If start() failed before taking ownership, we close the sock here.
+            LOG_WARN << "SETUP stream 96: AudioReceiver failed to start";
             ap::net::close_socket(d_sock);
+            ap::net::close_socket(c_sock);
             audio_.reset();
+            return false;
         }
 
         // AudioReceiver borrows the control socket to read RTP/NTP anchors.
@@ -260,15 +261,7 @@ bool StreamSession::setup_stream(int type,
         return true;
     }
 
-    // Fallback: keep both sockets in channels_ untouched.
-    StreamChannel ch;
-    ch.type         = type;
-    ch.data_port    = d_port;
-    ch.control_port = c_port;
-    ch.data_sock    = d_sock;
-    ch.control_sock = c_sock;
-    channels_.push_back(ch);
-    return true;
+    return false;
 }
 
 void StreamSession::stop_stream(int type) {

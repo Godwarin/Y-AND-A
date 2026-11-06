@@ -96,7 +96,7 @@ The project itself (everything under `src/`, `tools/`, this file, the
 
 ### Dear ImGui
 - **Upstream**: [github.com/ocornut/imgui](https://github.com/ocornut/imgui)
-- **Pinned tag**: `v1.91.5` (see `CMakeLists.txt`).
+- **Закреплённый commit**: `f401021d5a5d56fe2304056c391e78f81c8d4b8f` (`v1.91.5`). Полный список файлов и SHA-256 проверяются перед компиляцией по `cmake/imgui-source.json`.
 - **License**: MIT License.
 - **Use**: in-app overlay rendering (toolbar, options panel, status
   bar, sidebar, dialogs).

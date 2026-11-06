@@ -2,14 +2,11 @@
 
 | Метка выпуска | Внутренняя версия | Состояние |
 |---|---|---|
-| BETA-0.42 | PC/APK0.4.0-rc.1, Android code400 | Владелец подтвердил Android/iPhone видео+звук; isolated security13/13 и protocol13/13 PASS, подготовка к GitHub |
+| 0.42a | Windows 0.4.0-rc.2, Android code 401 | Владелец сообщил об успешной проверке. Изолированная проверка ожидается. |
+| BETA-0.42 | PC/APK0.4.0-rc.1, Android code400 | Замороженный комплект до исправлений. Владелец подтвердил видео и звук на Android/iPhone. Публикация заблокирована до проверки новой сборки. |
 |0.3.0-hotfix1|PC0.3.0/APK0.3.0|История: исправление native black viewer, прежний security NO-GO |
 |0.3.0|0.3.0|История: первый Android companion, заменён hotfix |
 |0.2.0|0.2.0|История: Android debugging path, больше не основной продукт |
 |0.1.0|0.1.0|История: AirPlay |
 
-Текущий beta комплект — release/BETA-0.42, готовые PC files в Windows. Исторические файлы сохранены локально в archive/releases и не входят в чистый GitHub snapshot. BETA label не требует пересборки успешно проверенных бинарников. Источником label/product соответствия служит config/release.json. Внутренний номер APK и его publisher certificate сохраняются для совместимого обновления.
-
-Репозиторий Godwarin/Y-AND-A пока private. Изменение visibility и окончательное публичное security approval не выполнялись.
-
-Для первого выпуска подготовлены tag BETA-0.42, target main, Draft=true и Pre-release=true. Это локальный план, tag/commit/release в GitHub пока не созданы. Описание: RELEASE_NOTES_BETA_0.42.md; инструкция новичку: GITHUB_FIRST_STEPS.md.
+Метка комплекта и внутренняя версия задаются в `config/release.json`. Готовые сборки распространяются отдельным выпуском. [Проверка загрузок](BINARY_RELEASE_CHECK.md) · [Статус 0.42a](TEST_RESULTS.md).

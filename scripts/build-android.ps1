@@ -10,6 +10,8 @@ $tools=Join-Path $sdk 'build-tools\36.0.0'
 $androidJar=Join-Path $sdk 'platforms\android-36\android.jar'
 $zxing=Join-Path $projectRoot 'downloads\android\zxing-core-3.5.4.jar'
 if(!(Test-Path $androidJar) -or !(Test-Path $zxing)){throw 'Сначала scripts/bootstrap-android.ps1 (SDK license acceptance required).'}
+. "$PSScriptRoot/android-build-input-integrity.ps1"
+$androidPins=Assert-YandaAndroidBuildInputs $projectRoot
 $work=Join-Path $projectRoot 'build\android'
 New-Item -ItemType Directory -Force $work,(Join-Path $work 'generated'),(Join-Path $work 'classes'),(Join-Path $work 'dex'),'release' | Out-Null
 & "$tools\aapt2.exe" compile --dir android-app/res -o "$work\resources.zip"
@@ -39,6 +41,7 @@ $credential=Join-Path $signing 'password.dpapi'
 # Preserve the key created by the first local build; never include .local in archives.
 $previousSigning=Join-Path $projectRoot 'build\android-signing'
 if(!(Test-Path $keystore)){throw 'Existing release signing key required. Restore its encrypted backup; never generate a replacement silently.'}
+Assert-YandaAndroidInputHash (Get-YandaPlainAndroidItem $projectRoot 'toolchain/android-sdk/build-tools/36.0.0/lib/apksigner.jar') $androidPins.buildTools.PSObject.Properties['lib/apksigner.jar'].Value
 if(!(Test-Path $credential) -or (Test-Path (Join-Path $signing 'local-password.txt'))){& "$PSScriptRoot/protect-android-signing.ps1"}
 $version=(Get-Content -Raw (Join-Path $projectRoot 'package.json') | ConvertFrom-Json).version
 $apk=Join-Path $projectRoot "build/android/Y-AND-A-$version-android.apk"
@@ -49,7 +52,7 @@ try {
  & "$jdk\bin\java.exe" -jar "$tools\lib\apksigner.jar" sign --ks $keystore --ks-key-alias yanda --ks-pass env:YANDA_APK_SIGNING_PASSWORD --out $apk "$work\aligned.apk"
  if($LASTEXITCODE){throw 'APK signing failed'}
 }finally{$env:YANDA_APK_SIGNING_PASSWORD=$oldSigningPassword;$secure.Dispose()}
-& "$jdk\bin\java.exe" -jar "$tools\lib\apksigner.jar" verify --verbose --print-certs $apk | Tee-Object -FilePath docs/evidence/android-apk-verification.log
+& "$jdk\bin\java.exe" -jar "$tools\lib\apksigner.jar" verify --verbose --print-certs $apk | Tee-Object -FilePath "docs/evidence/android-apk-verification-$version.log"
 if($LASTEXITCODE){throw 'APK signature verification failed'}
 & "$tools\aapt.exe" dump badging $apk | Select-Object -First 10
 Get-FileHash -LiteralPath $apk -Algorithm SHA256 | Select-Object Path,Hash

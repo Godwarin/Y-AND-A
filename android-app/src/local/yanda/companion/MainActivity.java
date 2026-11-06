@@ -22,7 +22,7 @@ public class MainActivity extends Activity {
     private Button start;
     private final Handler ui=new Handler(Looper.getMainLooper());
     private final Runnable refresh=new Runnable(){public void run(){if(status!=null){status.setText(StreamService.uiStatus);start.setEnabled(offer!=null && !StreamService.running);start.setAlpha(start.isEnabled()?1f:.4f);}ui.postDelayed(this,500);}};
-    @Override public void onCreate(Bundle saved){super.onCreate(saved);getWindow().setStatusBarColor(Color.rgb(8,8,8));getWindow().setNavigationBarColor(Color.rgb(8,8,8));build();accept(getIntent().getDataString());}
+    @Override public void onCreate(Bundle saved){super.onCreate(saved);getWindow().setStatusBarColor(Color.rgb(8,8,8));getWindow().setNavigationBarColor(Color.rgb(8,8,8));build();}
     private int dp(int v){return (int)(v*getResources().getDisplayMetrics().density+.5f);}
     private GradientDrawable bg(int color){GradientDrawable d=new GradientDrawable();d.setColor(color);d.setCornerRadius(dp(14));return d;}
     private TextView text(String s,int size,int color){TextView t=new TextView(this);t.setText(s);t.setTextSize(size);t.setTextColor(color);t.setPadding(0,dp(8),0,dp(8));return t;}
@@ -45,10 +45,9 @@ public class MainActivity extends Activity {
         Button stop=button("Остановить",false);root.addView(stop);stop.setOnClickListener(v->stopService(new Intent(this,StreamService.class)));
         root.addView(text("Android попросит разрешить показ экрана для каждого сеанса. Разрешение на звук называется «Запись аудио», но Y AND A захватывает воспроизведение приложений, а не микрофон.",12,Color.GRAY));
         root.addView(text("Некоторые приложения запрещают передачу звука или защищённого изображения. Трансляция зашифрована и не записывается на диск.",12,Color.GRAY));
-        root.addView(text("0.4.0-rc.1 · Android 10+ · Только ваша сеть",10,Color.GRAY));
+        root.addView(text("0.42a · Android 10+ · Только ваша сеть",10,Color.GRAY));
     }
-    private void accept(String raw){if(raw==null || pendingOffer!=null || StreamService.running)return;try{Pairing p=Pairing.parse(raw);offer=raw;connection.setText("Y AND A на ПК · "+p.host);start.setEnabled(!StreamService.running);status.setText("Готово. Нажмите «Начать трансляцию»");}catch(Exception e){new AlertDialog.Builder(this).setMessage(e.getMessage()).setPositiveButton("Понятно",null).show();}}
-    @Override public void onNewIntent(Intent intent){super.onNewIntent(intent);accept(intent.getDataString());}
+    private void accept(String raw){if(raw==null || pendingOffer!=null || StreamService.running)return;try{Pairing p=Pairing.parse(raw);offer=raw;connection.setText("Y AND A на ПК · "+p.host);start.setEnabled(!StreamService.running);status.setText("Готово. Нажмите «Начать трансляцию»");}catch(Exception e){new AlertDialog.Builder(this).setMessage("Не удалось прочитать код подключения. Создайте новый QR на ПК.").setPositiveButton("Понятно",null).show();}}
     private void requestStart(){if(offer==null || pendingOffer!=null || StreamService.running)return;pendingOffer=offer;pendingAudio=audio.isChecked();ArrayList<String> permissions=new ArrayList<>();if(pendingAudio&&checkSelfPermission(Manifest.permission.RECORD_AUDIO)!=PackageManager.PERMISSION_GRANTED)permissions.add(Manifest.permission.RECORD_AUDIO);if(Build.VERSION.SDK_INT>=33&&checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)!=PackageManager.PERMISSION_GRANTED)permissions.add(Manifest.permission.POST_NOTIFICATIONS);if(permissions.isEmpty())consent();else requestPermissions(permissions.toArray(new String[0]),20);}
     private void consent(){try{if(pendingOffer!=null)startActivityForResult(getSystemService(MediaProjectionManager.class).createScreenCaptureIntent(),30);}catch(Exception e){pendingOffer=null;status.setText("Система не разрешила запрос экрана");}}
     @Override public void onRequestPermissionsResult(int r,String[] p,int[] g){super.onRequestPermissionsResult(r,p,g);if(r==20)consent();}
