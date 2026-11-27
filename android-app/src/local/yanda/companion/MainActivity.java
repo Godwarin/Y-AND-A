@@ -16,7 +16,8 @@ import java.util.ArrayList;
 public class MainActivity extends Activity {
     private String offer;
     private String pendingOffer;
-    private boolean pendingAudio;
+    private boolean pendingAudio, pendingMouse;
+    private CheckBox mouse;
     private TextView connection,status;
     private CheckBox audio;
     private Button start;
@@ -41,17 +42,35 @@ public class MainActivity extends Activity {
         Button scan=button("Сканировать QR-код",true);root.addView(scan);scan.setOnClickListener(v->startActivityForResult(new Intent(this,ScanActivity.class),10));
         Button manual=button("Вставить код подключения",false);root.addView(manual);manual.setOnClickListener(v->{EditText input=new EditText(this);input.setTextColor(Color.WHITE);input.setTextSize(12);input.setHint("yanda://connect?…");input.setSingleLine(false);input.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);new AlertDialog.Builder(this).setTitle("Код из Y AND A на ПК").setView(input).setPositiveButton("Подключить",(d,w)->accept(input.getText().toString())).setNegativeButton("Отмена",null).show();});
         audio=new CheckBox(this);audio.setText("Передавать звук приложений");audio.setTextSize(14);audio.setTextColor(Color.LTGRAY);audio.setChecked(true);audio.setButtonTintList(android.content.res.ColorStateList.valueOf(Color.rgb(225,25,45)));audio.setPadding(0,dp(20),0,dp(8));root.addView(audio);
+        mouse=new CheckBox(this);
+        mouse.setText("Разрешить ПК нажимать и проводить по экрану в этом сеансе");
+        mouse.setTextColor(Color.LTGRAY);
+        root.addView(mouse);
+        mouse.setOnClickListener(v -> {
+            if(mouse.isChecked() && !MouseService.available()){
+                mouse.setChecked(false);
+                new AlertDialog.Builder(this).setMessage("Для управления мышью включите службу «Y AND A · Мышь» в специальных возможностях Android. Затем вернитесь и отметьте разрешение для этого сеанса.")
+                    .setPositiveButton("Открыть настройки",(d,w)->startActivity(new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)))
+                    .setNegativeButton("Отмена",null).show();
+            }
+        });
         start=button("Начать трансляцию",true);start.setEnabled(false);root.addView(start);start.setOnClickListener(v->requestStart());
         Button stop=button("Остановить",false);root.addView(stop);stop.setOnClickListener(v->stopService(new Intent(this,StreamService.class)));
         root.addView(text("Android попросит разрешить показ экрана для каждого сеанса. Разрешение на звук называется «Запись аудио», но Y AND A захватывает воспроизведение приложений, а не микрофон.",12,Color.GRAY));
         root.addView(text("Некоторые приложения запрещают передачу звука или защищённого изображения. Трансляция зашифрована и не записывается на диск.",12,Color.GRAY));
-        root.addView(text("0.42a · Android 10+ · Только ваша сеть",10,Color.GRAY));
+        root.addView(text("0.42b · Android 10+ · Только ваша сеть",10,Color.GRAY));
     }
     private void accept(String raw){if(raw==null || pendingOffer!=null || StreamService.running)return;try{Pairing p=Pairing.parse(raw);offer=raw;connection.setText("Y AND A на ПК · "+p.host);start.setEnabled(!StreamService.running);status.setText("Готово. Нажмите «Начать трансляцию»");}catch(Exception e){new AlertDialog.Builder(this).setMessage("Не удалось прочитать код подключения. Создайте новый QR на ПК.").setPositiveButton("Понятно",null).show();}}
-    private void requestStart(){if(offer==null || pendingOffer!=null || StreamService.running)return;pendingOffer=offer;pendingAudio=audio.isChecked();ArrayList<String> permissions=new ArrayList<>();if(pendingAudio&&checkSelfPermission(Manifest.permission.RECORD_AUDIO)!=PackageManager.PERMISSION_GRANTED)permissions.add(Manifest.permission.RECORD_AUDIO);if(Build.VERSION.SDK_INT>=33&&checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)!=PackageManager.PERMISSION_GRANTED)permissions.add(Manifest.permission.POST_NOTIFICATIONS);if(permissions.isEmpty())consent();else requestPermissions(permissions.toArray(new String[0]),20);}
-    private void consent(){try{if(pendingOffer!=null)startActivityForResult(getSystemService(MediaProjectionManager.class).createScreenCaptureIntent(),30);}catch(Exception e){pendingOffer=null;status.setText("Система не разрешила запрос экрана");}}
+    private void requestStart(){if(offer==null || pendingOffer!=null || StreamService.running)return;pendingOffer=offer;pendingAudio=audio.isChecked();pendingMouse=mouse.isChecked() && MouseService.available();mouse.setChecked(false);ArrayList<String> permissions=new ArrayList<>();if(pendingAudio&&checkSelfPermission(Manifest.permission.RECORD_AUDIO)!=PackageManager.PERMISSION_GRANTED)permissions.add(Manifest.permission.RECORD_AUDIO);if(Build.VERSION.SDK_INT>=33&&checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)!=PackageManager.PERMISSION_GRANTED)permissions.add(Manifest.permission.POST_NOTIFICATIONS);if(permissions.isEmpty())consent();else requestPermissions(permissions.toArray(new String[0]),20);}
+    private Intent captureIntent(){
+        MediaProjectionManager manager=getSystemService(MediaProjectionManager.class);
+        if(pendingMouse && Build.VERSION.SDK_INT>=34)
+            return manager.createScreenCaptureIntent(android.media.projection.MediaProjectionConfig.createConfigForDefaultDisplay());
+        return manager.createScreenCaptureIntent();
+    }
+    private void consent(){try{if(pendingOffer!=null)startActivityForResult(captureIntent(),30);}catch(Exception e){pendingOffer=null;status.setText("Система не разрешила запрос экрана");}}
     @Override public void onRequestPermissionsResult(int r,String[] p,int[] g){super.onRequestPermissionsResult(r,p,g);if(r==20)consent();}
-    @Override public void onActivityResult(int r,int result,Intent data){super.onActivityResult(r,result,data);if(r==10&&result==RESULT_OK&&data!=null)accept(data.getStringExtra("offer"));if(r==30){String approved=pendingOffer;pendingOffer=null;if(result==RESULT_OK&&data!=null&&approved!=null){Intent service=new Intent(this,StreamService.class).putExtra("offer",approved).putExtra("result",result).putExtra("projection",data).putExtra("audio",pendingAudio&&checkSelfPermission(Manifest.permission.RECORD_AUDIO)==PackageManager.PERMISSION_GRANTED);int[] size=initialCaptureSize();service.putExtra("captureWidth",size[0]).putExtra("captureHeight",size[1]);try{startForegroundService(service);}catch(Exception e){status.setText("Система не разрешила запуск трансляции");}}}}
+    @Override public void onActivityResult(int r,int result,Intent data){super.onActivityResult(r,result,data);if(r==10&&result==RESULT_OK&&data!=null)accept(data.getStringExtra("offer"));if(r==30){String approved=pendingOffer;pendingOffer=null;if(result==RESULT_OK&&data!=null&&approved!=null){Intent service=new Intent(this,StreamService.class).putExtra("offer",approved).putExtra("mouse",pendingMouse).putExtra("result",result).putExtra("projection",data).putExtra("audio",pendingAudio&&checkSelfPermission(Manifest.permission.RECORD_AUDIO)==PackageManager.PERMISSION_GRANTED);int[] size=initialCaptureSize();service.putExtra("captureWidth",size[0]).putExtra("captureHeight",size[1]);try{startForegroundService(service);}catch(Exception e){status.setText("Система не разрешила запуск трансляции");}}}}
     @SuppressWarnings("deprecation") private int[] initialCaptureSize(){
         if(Build.VERSION.SDK_INT>=30){android.graphics.Rect b=getWindowManager().getMaximumWindowMetrics().getBounds();return new int[]{b.width(),b.height()};}
         android.util.DisplayMetrics m=new android.util.DisplayMetrics();getWindowManager().getDefaultDisplay().getRealMetrics(m);return new int[]{m.widthPixels,m.heightPixels};

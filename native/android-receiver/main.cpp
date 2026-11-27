@@ -1,11 +1,13 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <windows.h>
+#include <windowsx.h>
 #include <iphlpapi.h>
 #include <openssl/ssl.h>
 #include <openssl/x509.h>
 #include <openssl/crypto.h>
 #include <SDL.h>
+#include <SDL_system.h>
 #include <SDL_syswm.h>
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -33,8 +35,55 @@ static std::atomic<SOCKET> connection{INVALID_SOCKET};
 static std::mutex frameMutex, outputMutex;
 struct Picture { int w=0,h=0; std::vector<uint8_t> rgba; };
 static Picture latest;
+// One outstanding gesture, carried only by the authenticated TLS worker.
+static std::atomic<bool> mouseSession{false};
+static std::mutex gestureMutex;
+struct Gesture {
+    std::array<uint8_t,15> bytes{};
+    std::chrono::steady_clock::time_point created;
+};
+static Gesture pendingGesture;
+static void queueGesture(int w,int h,int x,int y,int endX,int endY,int duration) {
+    std::lock_guard<std::mutex> lock(gestureMutex);
+    pendingGesture.created=std::chrono::steady_clock::now();
+    auto& bytes=pendingGesture.bytes;
+    bytes[0]=2;
+    const int fields[]={w,h,x,y,endX,endY,duration};
+    for(int i=0;i<7;++i){bytes[1+i*2]=uint8_t(fields[i]>>8);bytes[2+i*2]=uint8_t(fields[i]);}
+}
 static std::atomic<unsigned> generation{0};
 static void marker(const std::string& s) { std::lock_guard<std::mutex> lock(outputMutex); std::cout<<s<<std::endl; }
+struct MouseInput {
+    HWND window;
+    SDL_Renderer* renderer=nullptr;
+    int width=0,height=0;
+    int downX=-1,downY=0;
+    Uint64 pressed=0;
+    bool enabled=false;
+};
+static void SDLCALL mouseMessage(void* data,void* hwnd,unsigned message,Uint64 key,Sint64 point) {
+    auto& input=*static_cast<MouseInput*>(data);
+    if(hwnd!=input.window || !input.enabled) return;
+    if(message==WM_KEYDOWN && key==VK_ESCAPE && !(point & (1ll << 30))) {
+        marker("YANDA_EXIT_FULLSCREEN");
+        return;
+    }
+    if(!input.renderer || !input.width ||
+       (message!=WM_LBUTTONDOWN && message!=WM_LBUTTONDBLCLK && message!=WM_LBUTTONUP)) return;
+    float x=0,y=0;
+    SDL_RenderWindowToLogical(input.renderer,GET_X_LPARAM(point),GET_Y_LPARAM(point),&x,&y);
+    const bool inside=x>=0 && x<input.width && y>=0 && y<input.height;
+    if(message!=WM_LBUTTONUP) {
+        input.downX=inside?int(x):-1;
+        input.downY=int(y);
+        input.pressed=SDL_GetTicks64();
+    } else {
+        const auto duration=SDL_GetTicks64()-input.pressed;
+        if(inside && input.downX>=0 && duration<=3000)
+            queueGesture(input.width,input.height,input.downX,input.downY,int(x),int(y),std::max(40,int(duration)));
+        input.downX=-1;
+    }
+}
 static void require(bool ok) { if(!ok) throw std::runtime_error("receiver failure"); }
 static bool privateIp(uint32_t host) {
     return (host>>24)==10 || (host>>20)==0xac1 || (host>>16)==0xc0a8 || (host>>16)==0xa9fe;
@@ -131,7 +180,8 @@ static std::pair<SOCKET,SSL*> authenticate(SOCKET listener,SSL_CTX* ctx,const st
                 if(rc==1 && p.tls){size_t got=0;rc=SSL_read_ex(p.ssl,p.auth.data()+p.used,p.auth.size()-p.used,&got);if(rc==1){if(!got)close=true;p.used+=got;p.wantWrite=false;}}
                 if(rc!=1){int error=SSL_get_error(p.ssl,rc);p.wantWrite=error==SSL_ERROR_WANT_WRITE;if(error!=SSL_ERROR_WANT_READ && error!=SSL_ERROR_WANT_WRITE)close=true;}
                 if(p.used==p.auth.size()) {
-                    if(!close && std::chrono::steady_clock::now()<p.deadline && CRYPTO_memcmp(p.auth.data(),"YANDA03\n",8)==0 && CRYPTO_memcmp(p.auth.data()+8,token.data(),64)==0){
+                    if(!close && std::chrono::steady_clock::now()<p.deadline && (CRYPTO_memcmp(p.auth.data(),"YANDA03\n",8)==0 || CRYPTO_memcmp(p.auth.data(),"YANDA04\n",8)==0) && CRYPTO_memcmp(p.auth.data()+8,token.data(),64)==0){
+                        mouseSession=p.auth[6]=='4';
                         auto result=std::make_pair(p.fd,p.ssl);pending.erase(pending.begin()+i);for(auto& other:pending)dispose(other);return result;
                     }
                     close=true;
@@ -170,6 +220,12 @@ static void receive(SOCKET listener, SSL_CTX* ctx, std::string token, bool audio
         try {
             Decoder decoder;
             while(!stopping) {
+                if(mouseSession) {
+                    Gesture next;
+                    { std::lock_guard<std::mutex> lock(gestureMutex); next=pendingGesture; pendingGesture.bytes[0]=0; }
+                    if(next.bytes[0] && std::chrono::steady_clock::now()-next.created<std::chrono::milliseconds(500) &&
+                       !writeExact(ssl,next.bytes.data(),next.bytes.size())) break;
+                }
                 const auto packetDeadline=std::chrono::steady_clock::now()+std::chrono::seconds(10);
                 unsigned char header[13];if(!readExact(ssl,header,sizeof header,packetDeadline)) break;
                 unsigned type=header[0];uint32_t count=be32(header+1);auto pts=be64(header+5);
@@ -231,12 +287,22 @@ int main(int argc,char** argv) {
         marker("YANDA_COMPANION_READY "+std::to_string(ntohs(addr.sin_port))+" "+fingerprint+" "+addresses());
         std::thread worker(receive,listener,ctx,std::move(token),audio,maxSize,fps);
         SDL_Texture* texture=nullptr;int width=0,height=0;unsigned drawn=0;bool announced=false;
+        MouseInput input{wm.info.win.window};
+        SDL_SetWindowsMessageHook(mouseMessage,&input);
         while(!stopping && !finished) {
-            SDL_Event event;while(SDL_PollEvent(&event))if(event.type==SDL_QUIT || (event.type==SDL_WINDOWEVENT && event.window.event==SDL_WINDOWEVENT_CLOSE))stopping=true;
+            SDL_Event event;
+            while(SDL_PollEvent(&event)) {
+                if(event.type==SDL_QUIT || (event.type==SDL_WINDOWEVENT && event.window.event==SDL_WINDOWEVENT_CLOSE))stopping=true;
+                if(event.type==SDL_WINDOWEVENT && (event.window.event==SDL_WINDOWEVENT_FOCUS_LOST || event.window.event==SDL_WINDOWEVENT_SIZE_CHANGED)) input.downX=-1;
+            }
             // The Rust supervisor reparents/resizes this foreign HWND. Synchronize
             // SDL's own client/window cache before creating or presenting a renderer.
             // Otherwise borderless WM_NCCALCSIZE can retain the initial 640x480 size.
             if(GetParent(wm.info.win.window)!=nullptr) {
+                if(mouseSession && !input.enabled && !IsWindowEnabled(wm.info.win.window)) {
+                    EnableWindow(wm.info.win.window,TRUE);
+                    input.enabled=true;
+                }
                 RECT rect{};GetWindowRect(wm.info.win.window,&rect);
                 int targetW=rect.right-rect.left,targetH=rect.bottom-rect.top,sw=0,sh=0;
                 SDL_GetWindowSize(window,&sw,&sh);
@@ -257,10 +323,12 @@ int main(int argc,char** argv) {
             if(renderer && current!=drawn) {
                 std::lock_guard<std::mutex> lock(frameMutex);
                 if(latest.w!=width || latest.h!=height) {
+                    input.downX=-1;
                     if(texture)SDL_DestroyTexture(texture);width=latest.w;height=latest.h;
                     texture=SDL_CreateTexture(renderer,SDL_PIXELFORMAT_ABGR8888,SDL_TEXTUREACCESS_STREAMING,width,height);
                     if(!texture){marker("YANDA_ERROR");stopping=true;break;}
                     if(SDL_RenderSetLogicalSize(renderer,width,height)!=0){marker("YANDA_ERROR");stopping=true;break;}announced=false;
+                    input.renderer=renderer;input.width=width;input.height=height;
                 }
                 if(SDL_UpdateTexture(texture,nullptr,latest.rgba.data(),width*4)!=0){marker("YANDA_ERROR");stopping=true;break;}drawn=current;
             }
@@ -273,6 +341,7 @@ int main(int argc,char** argv) {
             SDL_Delay(8);
         }
         stopping=true;SOCKET client=connection.load();if(client!=INVALID_SOCKET)shutdown(client,SD_BOTH);
+        SDL_SetWindowsMessageHook(nullptr,nullptr);
         worker.join();if(texture)SDL_DestroyTexture(texture);if(renderer)SDL_DestroyRenderer(renderer);SDL_DestroyWindow(window);SDL_Quit();SSL_CTX_free(ctx);WSACleanup();return 0;
     } catch(...) { marker("YANDA_ERROR");return 1; }
 }

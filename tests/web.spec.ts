@@ -69,6 +69,20 @@ test("AirPlay, настройки, сохранение громкости, redu
   });
 });
 
+test("полный экран занимает весь монитор, Esc возвращает панели", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Полный экран", exact: true }).click();
+  await expect(page.locator(".app")).toHaveClass(/is-fullscreen/);
+  await expect(page.locator(".titlebar")).toBeHidden();
+  await expect(page.locator(".viewer-controls")).toBeHidden();
+  expect(await page.locator(".viewer").evaluate(el => {
+    const r = el.getBoundingClientRect();
+    return [r.x, r.y, r.width - innerWidth, r.height - innerHeight];
+  })).toEqual([0, 0, 0, 0]);
+  await page.keyboard.press("Escape");
+  await expect(page.locator(".viewer-controls")).toBeVisible();
+});
+
 test("минимальное окно сохраняет controls и анимацию", async ({ page }) => {
   await page.setViewportSize({ width: 900, height: 650 });
   await page.goto("/");

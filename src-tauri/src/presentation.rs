@@ -1,6 +1,57 @@
 use serde::Deserialize;
-use std::sync::Mutex;
-use tauri::{LogicalSize, PhysicalPosition, PhysicalSize, WebviewWindow};
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc, Mutex,
+};
+use std::time::Duration;
+use tauri::{Emitter, LogicalSize, PhysicalPosition, PhysicalSize, WebviewWindow, WindowEvent};
+use windows::Win32::{
+    Foundation::HWND,
+    UI::{
+        Input::KeyboardAndMouse::{GetAsyncKeyState, VK_ESCAPE},
+        WindowsAndMessaging::{GetAncestor, GetForegroundWindow, GA_ROOT},
+    },
+};
+
+fn owns_foreground(hwnd: isize) -> bool {
+    unsafe { GetAncestor(GetForegroundWindow(), GA_ROOT) == HWND(hwnd as _) }
+}
+
+pub fn watch_escape(window: &WebviewWindow, hwnd: isize) {
+    let closed = Arc::new(AtomicBool::new(false));
+    let destroyed = closed.clone();
+    window.on_window_event(move |event| {
+        if matches!(event, WindowEvent::Destroyed) {
+            destroyed.store(true, Ordering::Relaxed);
+        }
+    });
+    let window = window.clone();
+    std::thread::spawn(move || {
+        let mut pressed = false;
+        while !closed.load(Ordering::Relaxed) {
+            if owns_foreground(hwnd) {
+                // A foreign video HWND can receive input ahead of WebView2.
+                let down = unsafe { GetAsyncKeyState(i32::from(VK_ESCAPE.0)) < 0 };
+                if down && !pressed {
+                    let target = window.clone();
+                    let _ = window.run_on_main_thread(move || {
+                        if owns_foreground(hwnd)
+                            && target.is_fullscreen().unwrap_or(false)
+                            && target.set_fullscreen(false).is_ok()
+                        {
+                            let _ = target.emit("yanda:fullscreen-exited", ());
+                        }
+                    });
+                }
+                pressed = down;
+            } else {
+                // A key held while switching applications must be released first.
+                pressed = true;
+            }
+            std::thread::sleep(Duration::from_millis(16));
+        }
+    });
+}
 
 #[derive(Default)]
 pub struct Presentation {
@@ -44,6 +95,9 @@ impl Presentation {
             )
             .into());
         }
+        if w.is_fullscreen()? {
+            return Ok(true);
+        }
         if self.saved.is_none() {
             // Capture the normal restore rectangle, not the maximized client area.
             let fullscreen = w.is_fullscreen()?;
@@ -62,9 +116,7 @@ impl Presentation {
             });
         }
         // The owner's fullscreen command temporarily takes precedence.
-        if self.compact && w.is_fullscreen()? {
-            return Ok(true);
-        }
+
         if self.compact && self.last == Some((r.width, r.height)) {
             return w.is_fullscreen();
         }

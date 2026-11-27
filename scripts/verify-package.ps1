@@ -1,4 +1,4 @@
-param([string]$ArtifactVersion,[switch]$SourceOnly)
+param([string]$ArtifactVersion,[switch]$SourceOnly,[switch]$ForDeviceTesting)
 $ErrorActionPreference='Stop'
 $projectRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 Set-Location -LiteralPath $projectRoot
@@ -9,6 +9,12 @@ $layout=Get-YandaReleaseLayout $ArtifactVersion
 $prefix='Windows/'
 $portable=$layout.WindowsZip
 $source=$layout.SourceZip
+if($ForDeviceTesting){
+    if($SourceOnly -or !$layout.BlockedForPublication -or $layout.ArtifactVersion -ceq 'BETA-0.42'){
+        throw 'Device verification requires a version blocked for publication'
+    }
+    $portable=Join-Path $layout.ReleaseDirectory "Y-AND-A-$($layout.ArtifactVersion)-device-test-win64.zip"
+}
 if(!$SourceOnly){
 $expected=@{}
 Get-Content (Join-Path $layout.WindowsDirectory 'SHA256SUMS.txt') | ForEach-Object {if($_ -match '^([a-f0-9]{64})  (.+)$'){$expected[$Matches[2].Replace([char]92,[char]47)]=$Matches[1]}}
@@ -32,6 +38,25 @@ try {
     }
     if($verified -ne $expected.Count){throw 'Portable archive is missing files'}
 } finally {$zip.Dispose()}
+}
+if($ForDeviceTesting){
+    $apk=Join-Path $layout.ReleaseDirectory $layout.AndroidName
+    $apkHash=(Get-FileHash -LiteralPath $apk).Hash
+    $buildApkHash=(Get-FileHash -LiteralPath $layout.AndroidInput).Hash
+    if($apkHash -ine $buildApkHash -or $apkHash -ine $expected[$layout.InternalAndroidName]){
+        throw 'APK in ZIP, standalone APK and build APK differ'
+    }
+    foreach($file in @{'Y AND A.exe'='src-tauri/target/release/y-and-a.exe';'runtime/android-yanda/yanda-android.exe'='runtime/android-yanda/yanda-android.exe';'runtime/airplay-yanda/airplay-windows.exe'='runtime/airplay-yanda/airplay-windows.exe'}.GetEnumerator()){
+        if($expected[$file.Key] -ine (Get-FileHash -LiteralPath $file.Value).Hash){throw "Unexpected binary: $($file.Key)"}
+    }
+    [ordered]@{
+        status='PASS_DEVICE_TEST_PACKAGE'
+        artifactVersion=$layout.ArtifactVersion
+        portableFilesVerified=$verified
+        portableZipSha256=(Get-FileHash -LiteralPath $portable).Hash.ToLowerInvariant()
+        apkSha256=$apkHash.ToLowerInvariant()
+    } | ConvertTo-Json
+    return
 }
 $sourceChecked=0
 $sourceZip=[IO.Compression.ZipFile]::OpenRead($source)

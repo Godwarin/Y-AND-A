@@ -52,6 +52,7 @@ public class StreamService extends Service {
         ScheduledExecutorService heartbeat;
         int sourceW,sourceH,videoW,videoH,maxSize=1920,fps=30;
         boolean audioEnabled;
+        boolean mouseEnabled;
         DisplayManager.DisplayListener displayListener;
         Session(Intent intent){request=intent;thread.start();control=new Handler(thread.getLooper());}
         void begin(){try{
@@ -74,7 +75,8 @@ public class StreamService extends Service {
             }
             if(!connected)throw new IOException("ПК недоступен");
             input=new DataInputStream(socket.getInputStream());output=new DataOutputStream(new BufferedOutputStream(socket.getOutputStream(),65536));
-            output.write("YANDA03\n".getBytes(StandardCharsets.US_ASCII));output.write(pair.token.getBytes(StandardCharsets.US_ASCII));output.flush();
+            mouseEnabled=request.getBooleanExtra("mouse",false) && MouseService.available();
+            output.write((mouseEnabled?"YANDA04\n":"YANDA03\n").getBytes(StandardCharsets.US_ASCII));output.write(pair.token.getBytes(StandardCharsets.US_ASCII));output.flush();
             byte[] magic=new byte[8];input.readFully(magic);if(!java.util.Arrays.equals(magic,"YANDAOK\n".getBytes(StandardCharsets.US_ASCII)))throw new IOException("Неверный ответ ПК");
             audioEnabled=input.readUnsignedByte()==1 && request.getBooleanExtra("audio",false);maxSize=input.readInt();fps=input.readInt();if(maxSize<640||maxSize>2560||(fps!=30&&fps!=60))throw new IOException("Неподдерживаемые параметры ПК");
             if(closed.get())return;
@@ -90,11 +92,33 @@ public class StreamService extends Service {
             if(closed.get())return;
             if(audioEnabled)startAudio();else send(4,new byte[0],0);
             if(closed.get())return;
-            heartbeat=Executors.newSingleThreadScheduledExecutor();heartbeat.scheduleAtFixedRate(()->{try{send(5,new byte[0],0);}catch(Exception e){fail("Связь с ПК потеряна");}},1,2,TimeUnit.SECONDS);
-            monitor=new Thread(()->{try{while(!closed.get()){if(input.read()!=1)throw new EOFException();}}catch(Exception e){if(!closed.get())fail("ПК завершил соединение или сеть недоступна");}},"YANDA-link");monitor.start();
+            heartbeat=Executors.newSingleThreadScheduledExecutor();heartbeat.scheduleAtFixedRate(()->{try{send(5,new byte[0],0);}catch(Exception e){fail("Связь с ПК потеряна");}},1000,mouseEnabled?200:2000,TimeUnit.MILLISECONDS);
+            monitor=new Thread(()->{try{while(!closed.get()){int type=input.read();
+                if(type==1)continue;
+                if(type!=2 || !mouseEnabled)throw new IOException();
+                readGesture();}}catch(Exception e){if(!closed.get())fail("ПК завершил соединение или сеть недоступна");}},"YANDA-link");monitor.start();
             uiStatus="Передаём экран в Y AND A";
         }catch(Exception e){fail("Не удалось подключиться. Проверьте общую сеть, свежий QR и доступ Y AND A к локальной сети на ПК.");}}
 
+        void readGesture() throws IOException {
+            int w=input.readUnsignedShort(),h=input.readUnsignedShort();
+            int x=input.readUnsignedShort(),y=input.readUnsignedShort();
+            int endX=input.readUnsignedShort(),endY=input.readUnsignedShort(),ms=input.readUnsignedShort();
+            if(w<16 || h<16 || w>2560 || h>2560 || x>=w || endX>=w || y>=h || endY>=h || ms<1 || ms>3000)
+                throw new IOException();
+            if(!gestureQueued.compareAndSet(false,true)) return;
+            long received=SystemClock.uptimeMillis();
+            control.post(()->{
+                try {
+                    if(closed.get() || !mouseEnabled || w!=videoW || h!=videoH || SystemClock.uptimeMillis()-received>500) return;
+                    int[] size=screenSize();
+                    if(size[0]!=sourceW || size[1]!=sourceH) return;
+                    MouseService.gesture((float)x*sourceW/w,(float)y*sourceH/h,
+                        (float)endX*sourceW/w,(float)endY*sourceH/h,ms);
+                } finally { gestureQueued.set(false); }
+            });
+        }
+        final AtomicBoolean gestureQueued=new AtomicBoolean();
         @SuppressWarnings("deprecation") int[] screenSize(){android.util.DisplayMetrics metrics=new android.util.DisplayMetrics();Display d=getSystemService(DisplayManager.class).getDisplay(Display.DEFAULT_DISPLAY);if(d==null)throw new IllegalStateException("Display unavailable");d.getRealMetrics(metrics);return new int[]{metrics.widthPixels,metrics.heightPixels};}
 
         void configure(int w,int h)throws Exception{

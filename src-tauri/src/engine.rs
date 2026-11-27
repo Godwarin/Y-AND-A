@@ -37,6 +37,7 @@ pub struct Snapshot {
     pub apk_ready: bool,
     pub airplay_ready: bool,
     pub embedded: bool,
+    pub exit_fullscreen: bool,
     pub window_visible: bool,
     pub engine_pid: Option<u32>,
     pub airplay_approval: Option<AirplayApproval>,
@@ -71,6 +72,7 @@ pub struct Backend {
     pub top_limit: i32,
     pub fill: bool,
     pub closed: bool,
+    pub exit_fullscreen: bool,
     volume: f32,
     muted: bool,
     last_volume: Option<Instant>,
@@ -107,6 +109,7 @@ impl Backend {
             top_limit: 0,
             fill: false,
             closed: false,
+            exit_fullscreen: false,
             volume: 0.8,
             muted: false,
             last_volume: None,
@@ -147,6 +150,7 @@ impl Backend {
                     ))
                     .is_file(),
             airplay_ready: self.airplay_exe().is_file(),
+            exit_fullscreen: self.exit_fullscreen,
             embedded: self.child_hwnd != 0,
             window_visible: native::window_visible(self.parent),
             engine_pid: self.media.as_ref().map(Child::id),
@@ -469,6 +473,10 @@ impl Backend {
         }
     }
     fn parse_event(&mut self, line: &str) {
+        if self.source == "android" && line == "YANDA_EXIT_FULLSCREEN" {
+            self.exit_fullscreen = true;
+            return;
+        }
         if self.source == "airplay" {
             if let Some((_, tail)) = line.split_once("YANDA_APPROVAL ") {
                 let p = tail.split_whitespace().collect::<Vec<_>>();

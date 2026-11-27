@@ -23,10 +23,14 @@ const commands = {
   playwright: "@playwright/test/cli.js",
 };
 const [tool, ...args] = process.argv.slice(2);
-if (!(tool in commands)) throw new Error(`Unknown project tool: ${tool}`);
+if (tool !== "node" && !Object.hasOwn(commands, tool)) {
+  throw new Error(`Unknown project tool: ${tool}`);
+}
 const result = spawnSync(
   node,
-  [path.join(root, "node_modules", commands[tool]), ...args],
+  tool === "node"
+    ? args
+    : [path.join(root, "node_modules", commands[tool]), ...args],
   {
     cwd: root,
     stdio: "inherit",

@@ -1502,28 +1502,23 @@ svg {
     transition-duration: 0s !important;
   }
 }
-.is-fullscreen .workspace main {
-  max-width: none;
-}
-.is-fullscreen .page-heading,
-.is-fullscreen .preview-banner,
-.is-fullscreen .connection-panel,
-.is-fullscreen .rail,
-.is-fullscreen .page-footer,
-.is-fullscreen .drawer {
+.app.is-fullscreen .titlebar,
+.app.is-fullscreen .viewer-card > :not(.viewer),
+.app.is-fullscreen .page-heading,
+.app.is-fullscreen .preview-banner,
+.app.is-fullscreen .connection-panel,
+.app.is-fullscreen .rail,
+.app.is-fullscreen .page-footer,
+.app.is-fullscreen .drawer {
   display: none;
 }
-.is-fullscreen .studio {
-  grid-template-columns: 1fr;
-  height: calc(100vh - 122px);
-}
-.is-fullscreen .viewer-card {
-  min-height: 0;
-}
-.is-fullscreen .workspace main {
-  padding: 16px;
-}
-.is-fullscreen .viewer {
+.app.is-fullscreen .viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  border: 0;
+  border-radius: 0;
+  background: #080808;
   min-height: 0;
 }
 

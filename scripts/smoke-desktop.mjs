@@ -11,6 +11,11 @@ const exe = path.resolve(
     "src-tauri/target/debug/y-and-a.exe",
 );
 const withAirplay = process.argv.includes("--airplay");
+const nativeEscape = withAirplay && process.argv.includes("--native-escape");
+const artifact = path.basename(path.dirname(path.dirname(exe)));
+const reportName = ["0.42b", "0.42c"].includes(artifact)
+  ? `native-smoke-${artifact}.json`
+  : "native-smoke.json";
 const port = 19342;
 const child = spawn(exe, [], {
   cwd: path.dirname(exe),
@@ -23,6 +28,7 @@ const child = spawn(exe, [], {
 });
 let browser;
 let lastEnginePid, sender, previousToken;
+let senderOutput = "";
 const report = {
   kind: "native Tauri/WebView2 smoke; no physical device",
   binary: path.relative(root, exe),
@@ -154,6 +160,38 @@ try {
       ({ command, args }) => window.__TAURI_INTERNALS__.invoke(command, args),
       { command, args },
     );
+  if (nativeEscape) {
+    await check("Windows Escape exits AirPlay fullscreen without WebView keyboard events", async () => {
+      await page.getByRole("tab", { name: "iPhone AirPlay" }).click();
+      await page.getByRole("button", { name: "Включить AirPlay" }).click();
+      await expect.poll(async () => (await invoke("status")).phase, { timeout: 35000 }).toBe("waiting");
+      await page.evaluate(() => window.addEventListener("keydown", event => {
+        if (event.key === "Escape") event.stopImmediatePropagation();
+      }, { capture: true, once: true }));
+      await page.getByRole("button", { name: "Полный экран", exact: true }).click();
+      await page.locator(".is-fullscreen").waitFor();
+      await expect.poll(() => invoke("plugin:window|is_fullscreen", { label: "main" })).toBe(true);
+      console.log("READY: focus the fullscreen test window");
+      const keyboard = spawn(path.join(root, ".venv/Scripts/python.exe"), [
+        path.join(root, "scripts/test-native-escape.py"), String(child.pid), "--wait-for-focus",
+      ], { cwd: root, windowsHide: true, stdio: ["ignore", "ignore", "pipe"] });
+      await new Promise((resolve, reject) => {
+        let error = "";
+        keyboard.stderr.on("data", data => { error += data; });
+        keyboard.on("error", reject);
+        keyboard.on("close", code => code === 0 ? resolve() : reject(new Error(error.trim())));
+      });
+      await expect.poll(
+        () => invoke("plugin:window|is_fullscreen", { label: "main" }),
+        { timeout: 5000 },
+      ).toBe(false);
+      await page.locator(".app:not(.is-fullscreen)").waitFor();
+      await expect(page.locator(".titlebar")).toBeVisible();
+      await invoke("disconnect");
+      await expect.poll(portFree, { timeout: 10000 }).toBe(true);
+      await page.getByRole("tab", { name: "Android" }).click();
+    });
+  }
   await check("Desktop IPC and bundled Android receiver/APK", async () => {
     const s = await invoke("status");
     if (!s.companionReady || !s.apkReady)
@@ -213,11 +251,17 @@ try {
         throw new Error("Secret in diagnostic log");
       sender = spawn(
         path.join(root, ".venv/Scripts/python.exe"),
-        [path.join(root, "scripts/send-android-fixture.py")],
+        [
+          path.join(root, "scripts/send-android-fixture.py"),
+          String(child.pid),
+          String(lastEnginePid),
+        ],
         { cwd: root, windowsHide: true, stdio: ["pipe", "pipe", "pipe"] },
       );
       previousToken = new URL(uri).searchParams.get("token");
       sender.stdin.on("error", () => {});
+      sender.stdout.on("data", (data) => { senderOutput += data; });
+      sender.stderr.on("data", (data) => { senderOutput += data; });
       sender.stdin.write(uri + "\n");
     },
   );
@@ -284,6 +328,22 @@ try {
       report.nativePixelCheck = result.out.trim();
     },
   );
+  await check("Android mouse click, fullscreen swipe and native Escape (synthetic sender)", async () => {
+    sender.stdin.write("click\n");
+    await expect.poll(() => senderOutput, { timeout: 8000 }).toContain("SYNTHETIC_MOUSE_CLICK");
+    await page.getByRole("button", { name: "Полный экран", exact: true }).click();
+    await page.locator(".is-fullscreen").waitFor();
+    await expect.poll(() => page.locator(".viewer").evaluate(el => {
+      const r = el.getBoundingClientRect();
+      return r.x === 0 && r.y === 0 && r.width === innerWidth && r.height === innerHeight;
+    })).toBe(true);
+    // The WebView bounds are visible one compositor pass before the foreign HWND.
+    await delay(600);
+    sender.stdin.write("swipe\n");
+    await expect.poll(() => senderOutput, { timeout: 8000 }).toContain("SYNTHETIC_MOUSE_SWIPE");
+    sender.stdin.write("escape\n");
+    await expect(page.locator(".app:not(.is-fullscreen)")).toBeVisible();
+  });
   await check(
     "Real stream orientation resizes native viewer and compact window",
     async () => {
@@ -315,7 +375,7 @@ try {
     },
   );
   await check(
-    "New Android session has a fresh token; explicit stop cleans it",
+    "Legacy view-only Android streams with mouse disabled; explicit stop cleans it",
     async () => {
       await page
         .getByRole("button", { name: "Показать QR-код", exact: true })
@@ -330,7 +390,23 @@ try {
         previousToken
       )
         throw new Error("QR token reused");
+      senderOutput = "";
+      sender = spawn(path.join(root, ".venv/Scripts/python.exe"), [
+        path.join(root, "scripts/send-android-fixture.py"),
+        String(child.pid), String(lastEnginePid), "view-only",
+      ], { cwd: root, windowsHide: true, stdio: ["pipe", "pipe", "pipe"] });
+      sender.stdin.on("error", () => {});
+      sender.stdout.on("data", (data) => { senderOutput += data; });
+      sender.stderr.on("data", (data) => { senderOutput += data; });
+      sender.stdin.write(next.destinations[0].payload + "\n");
+      await expect.poll(async () => (await invoke("status")).phase, { timeout: 20000 }).toBe("streaming");
+      sender.stdin.write("check-disabled\n");
+      await expect.poll(() => senderOutput).toContain("SYNTHETIC_MOUSE_DISABLED");
       await invoke("disconnect");
+      sender.stdin.end();
+      await expect(page.locator(".is-compact")).toHaveCount(0);
+      await expect.poll(() => page.evaluate(() => ({ width: innerWidth, height: innerHeight })))
+        .toEqual(normalSessionSize);
       await expect(
         page.getByAltText("QR для Android-приложения Y AND A"),
       ).toHaveCount(0);
@@ -442,7 +518,7 @@ try {
     });
     await expect
       .poll(() => invoke("plugin:window|is_fullscreen", { label: "main" }))
-      .toBe(false);
+      .toBe(true);
     await invoke("presentation_set", {
       request: { active: false, compact: false, width: 1, height: 1 },
     });
@@ -477,7 +553,12 @@ try {
     await page.locator(".is-fullscreen").waitFor();
     if (!(await invoke("plugin:window|is_fullscreen", { label: "main" })))
       throw new Error("Native fullscreen property false");
-    await page.getByRole("button", { name: "Выйти из полного экрана" }).click();
+    await expect(page.locator(".titlebar")).toBeHidden();
+    await expect.poll(() => page.locator(".viewer").evaluate(el => {
+      const r = el.getBoundingClientRect();
+      return r.x === 0 && r.y === 0 && r.width === innerWidth && r.height === innerHeight;
+    })).toBe(true);
+    await page.keyboard.press("Escape");
     await page.locator(".app:not(.is-fullscreen)").waitFor();
   });
   await page.screenshot({
@@ -598,7 +679,7 @@ try {
   if (child.exitCode === null) child.kill();
   await mkdir(path.join(root, "docs/evidence"), { recursive: true });
   await writeFile(
-    path.join(root, "docs/evidence/native-smoke.json"),
+    path.join(root, "docs/evidence", reportName),
     JSON.stringify(report, null, 2),
   );
 }

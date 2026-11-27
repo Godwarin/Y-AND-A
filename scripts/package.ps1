@@ -57,7 +57,7 @@ $releaseNote=if($ForDeviceTesting){'Сборка для проверки на т
 $docsDir=Join-Path $destination 'docs';$evidenceDir=Join-Path $docsDir 'evidence'
 New-Item -ItemType Directory -Force $docsDir | Out-Null
 $publicDocs=@('SECURITY_VALIDATION_BETA_0.42.md','BINARY_RELEASE_CHECK.md','USER_GUIDE.md','PRIVACY.md','CLOSED_BETA.md','SECURITY_RELEASE_REVIEW.md','SECURITY_FOLLOWUP_2026-11-04.md','BUILD_FROM_SOURCE.md')
-if($ForDeviceTesting){$publicDocs=@('USER_GUIDE.md','PRIVACY.md','SECURITY_REMEDIATION_2026-11-05.md')}
+if($ForDeviceTesting){$publicDocs=@('USER_GUIDE.md','PRIVACY.md')}
 Get-ChildItem -LiteralPath $docsDir -File | Where-Object {$_.Name -notin $publicDocs} | ForEach-Object {Remove-Item -LiteralPath $_.FullName}
 $docRoot=if($FromTestedPackage){Join-Path $projectRoot 'publish/github'}else{$projectRoot}
 foreach($publicDoc in $publicDocs) {Copy-Item -LiteralPath (Join-Path $docRoot "docs/$publicDoc") -Destination $docsDir -Force}

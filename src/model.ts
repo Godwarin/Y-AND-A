@@ -14,6 +14,7 @@ export interface Snapshot {
   airplayReady: boolean;
   embedded: boolean;
   windowVisible: boolean;
+  exitFullscreen?: boolean;
   airplayApproval?: {
     requestId: string;
     fingerprint: string;

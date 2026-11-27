@@ -79,9 +79,10 @@ async fn disconnect(backend: State<'_, Shared>) -> Result<Snapshot, String> {
 async fn status(backend: State<'_, Shared>) -> Result<Snapshot, String> {
     let b = backend.inner().clone();
     tauri::async_runtime::spawn_blocking(move || {
-        Ok(b.lock()
-            .map_err(|_| "Блокировка backend".to_string())?
-            .snapshot())
+        let mut backend = b.lock().map_err(|_| "Блокировка backend".to_string())?;
+        let snapshot = backend.snapshot();
+        backend.exit_fullscreen = false;
+        Ok(snapshot)
     })
     .await
     .map_err(|e| e.to_string())?
@@ -157,6 +158,7 @@ fn main() {
         .setup(|app| {
             let window = app.get_webview_window("main").ok_or("Нет главного окна")?;
             let hwnd = window.hwnd()?.0 as isize;
+            presentation::watch_escape(&window, hwnd);
             let root = if cfg!(debug_assertions) {
                 std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
                     .parent()

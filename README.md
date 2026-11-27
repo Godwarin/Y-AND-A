@@ -1,16 +1,18 @@
-# Y AND A — 0.42a
+# Y AND A — 0.42c
 
 Экран и звук Android/iPhone на Windows11 x64 в доверенной локальной сети. На Android используется собственное приложение: отладка и режим разработчика не нужны. На iPhone — AirPlay с подтверждением подключения на ПК.
 
 ## Скачать и начать
 
-Готовые сборки размещаются в [Releases](https://github.com/Godwarin/Y-AND-A/releases), когда выпуск опубликован. Для Windows нужен **win64.zip целиком**, для Android — **android.apk** из того же выпуска. Кнопка GitHub **Code → Download ZIP** скачивает исходники для разработки.
+- [Windows 11 x64 ZIP](https://github.com/Godwarin/Y-AND-A/releases/download/0.42c/Y-AND-A-0.42c-win64.zip). Распакуйте архив целиком и откройте `Y AND A.exe`.
+- [Android APK](https://github.com/Godwarin/Y-AND-A/releases/download/0.42c/Y-AND-A-0.42c-android.apk). Установите его на телефон для трансляции с Android.
+- [Описание выпуска и контрольные суммы](https://github.com/Godwarin/Y-AND-A/releases/tag/0.42c). iPhone передаёт экран и звук через встроенный AirPlay.
 
 [Подключение телефона](docs/USER_GUIDE.md) · [Проверка загрузок](docs/BINARY_RELEASE_CHECK.md) · [История версий](docs/RELEASES.md)
 
 ## Статус беты
 
-0.42a — кандидат с внутренней версией Windows 0.4.0-rc.2 и Android code 401. Владелец сообщил об успешной проверке на телефонах. Изолированные сетевые проверки этой сборки ещё ожидаются. [Результаты и ограничения](docs/TEST_RESULTS.md).
+В 0.42c полный экран занимает весь монитор, а Esc возвращает панели. Android APK 0.42b добавляет управление мышью с согласия на телефоне. Для iPhone доступна мышь, подключённая к телефону через AssistiveTouch. [Результаты и ограничения](docs/TEST_RESULTS.md).
 
 ## Запуск готовой сборки
 
@@ -24,7 +26,7 @@ iPhone: включите AirPlay в Y AND A → Пункт управления 
 
 Используйте собственную доверенную сеть, не открывайте порты программы в интернет. AirPlay не удостоверяет первый выбранный по имени приёмник. DRM/FLAG_SECURE и запреты записи звука соблюдаются. Экран/звук не записываются приложением на диск, телеметрия отсутствует в собственном коде.
 
-EXE пока без Authenticode. Отдельная ECDSA подпись манифеста не убирает предупреждение неизвестного издателя. Проверяйте SHA256 и источник загрузки; антивирус и SmartScreen не отключайте.
+EXE пока без Authenticode. Для файлов 0.42c опубликованы контрольные суммы SHA-256. У Android APK есть подпись издателя.
 
 [Инструкция](docs/USER_GUIDE.md) · [Приватность](docs/PRIVACY.md) · [Аудит безопасности 0.42a](docs/SECURITY_REVIEW_0.42a.md) · [Проверка готовых загрузок](docs/BINARY_RELEASE_CHECK.md) · [Сообщения о безопасности](SECURITY.md)
 
@@ -34,6 +36,6 @@ EXE пока без Authenticode. Отдельная ECDSA подпись ман
 
 Tauri2 + React/TypeScript + Rust; Windows native C++ FFmpeg/SDL viewer; Android Java MediaProjection/AudioPlaybackCapture. Полные исходники изменённого GPL AirPlay receiver сохранены в vendor/airplay-windows. Сборка описана в [docs/BUILD_FROM_SOURCE.md](docs/BUILD_FROM_SOURCE.md); код под GPL-3.0-only, сторонние лицензии — [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
-`config/release.json` связывает метку комплекта 0.42a с внутренней версией 0.4.0-rc.2. Ключи автора хранятся отдельно. Собственную изменённую сборку APK подписывают собственным сертификатом.
+`config/release.json` связывает метку комплекта 0.42c с внутренней версией Windows 0.4.0-rc.3. Собственную сборку APK подписывают собственным сертификатом.
 
 Репозиторий содержит исходники, лицензии и инструкции для разработчиков. Архивы исходных зависимостей предоставляются отдельно вместе с архивом соответствующего выпуска.

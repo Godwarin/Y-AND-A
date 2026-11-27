@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
+import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import {
   ArrowRight,
@@ -157,7 +158,10 @@ function App() {
       pending = true;
       try {
         const s = await api.status();
-        if (!gone) setSnapshot(s);
+        if (!gone) {
+          if (s.exitFullscreen) await getCurrentWindow().setFullscreen(false).then(() => setFull(false));
+          setSnapshot(s);
+        }
       } catch (e) {
         if (!gone) setError(String(e));
       } finally {
@@ -235,6 +239,12 @@ function App() {
     document.addEventListener("fullscreenchange", changed);
     return () => document.removeEventListener("fullscreenchange", changed);
   }, []);
+  useEffect(() => {
+    if (!desktop) return;
+    const subscription = listen("yanda:fullscreen-exited", () => setFull(false));
+    void subscription.catch(report);
+    return () => { void subscription.then((unlisten) => unlisten(), () => {}); };
+  }, []);
 
   async function connect() {
     setError("");
@@ -283,7 +293,7 @@ function App() {
   }
   async function copyDiagnostics() {
     const text = [
-      "Y AND A 0.42a",
+      "Y AND A 0.42c",
       desktop ? "Tauri Windows" : "Веб-просмотр",
       `Источник: ${sourceNames[source]}`,
       `Состояние: ${snapshot.phase}`,
@@ -603,7 +613,7 @@ function App() {
                     aria-label={
                       full ? "Выйти из полного экрана" : "Полный экран"
                     }
-                    title="Полный экран"
+                    title="Полный экран · выход по Esc"
                     onClick={() => void fullscreen(!full)}
                   >
                     {full ? <Minimize size={18} /> : <Expand size={18} />}
@@ -723,6 +733,12 @@ function App() {
                       </li>
                     ))}
                   </ol>
+                  {source === "airplay" && (
+                    <details>
+                      <summary>Мышь для iPhone</summary>
+                      <p>AirPlay передаёт экран и звук. Чтобы управлять iPhone во время показа, подключите Bluetooth-мышь к самому телефону через «Настройки» → «Универсальный доступ» → «Касание» → AssistiveTouch → «Устройства».</p>
+                    </details>
+                  )}
                 </div>
                 <div className="source-limit">
                   <Info size={14} />
